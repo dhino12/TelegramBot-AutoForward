@@ -1,0 +1,18 @@
+{
+  "name": "telegrambot-autoforward",
+  "version": "1.0.0",
+  "description": "AutoForward TelegramBot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/bot.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@grammyjs/conversations": "^1.1.1",
+    "@mtproto/core": "^6.2.0",
+    "dotenv": "^16.0.3",
+    "grammy": "^1.15.3"
+  }
+}
