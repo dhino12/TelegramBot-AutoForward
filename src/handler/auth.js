@@ -47,11 +47,27 @@ const sendCode = async (phone_number) => {
 }
 
 const signIn = async (mycode, yourInfo) => {
-    return api.call('auth.signIn', {
-        phone_code: mycode,
-        phone_number: yourInfo.phone_number,
-        phone_code_hash: yourInfo.phone_code_hash
-    })
+    console.log(yourInfo);
+    try {
+        const data = await api.call('auth.signIn', {
+            phone_code: mycode,
+            phone_number: yourInfo.phone_number,
+            phone_code_hash: yourInfo.phone_code_hash
+        })
+
+        return data
+    } catch (error) {
+        console.error(error);
+    }
 }
 
-module.exports = { sendCode, signIn }
+const authImportSession = async () => {
+    try {
+        const data = await api.call('auth.Authorization')
+        console.log(data);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+module.exports = { sendCode, signIn, authImportSession }

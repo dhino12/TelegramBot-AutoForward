@@ -1,11 +1,11 @@
 const { createConversation } = require("@grammyjs/conversations");
 const { bot, grammy } = require("../server");
-const { signIn, sendCode } = require("./handler/auth");
+const { signIn, sendCode, authImportSession } = require("./handler/auth");
 const { signInUser } = require("./middlewares");
 // require('./handler/auth')
 let userInfo = null // <= information about phone_code, phone_number
 
-bot.command('start', (context) => {
+bot.command('start', async (context) => {
     const inlineKeyboard = new grammy.InlineKeyboard()
     inlineKeyboard.text('Koneksi Pertama', 'firstconnection')
     inlineKeyboard.text('Dokumentasi / Bantuan', 'documentation')
@@ -15,6 +15,12 @@ bot.command('start', (context) => {
     `, {  
         reply_markup: inlineKeyboard
     })
+
+    context.session.name = 'John Doe';
+    context.session.age = 30;
+    await authImportSession()
+    // Send welcome message
+    await context.reply(`Hello, ${context.session.name}!`);
 })
 
 bot.command('menu', (context) => {
@@ -43,26 +49,18 @@ bot.command('connect', async (context) => {
     const item = context.match
     
     if (item.startsWith('+')) {
-        await context.reply(`Nomer telepon ${item} sedang diproses`)
-        const data = await sendCode(item)
-        userInfo = data
-        
-        // await context.conversation.enter('signInUser')
-        // console.log(context.session.name);
-        // bot.on('message:text', (ctx) => {
-        //     context
-        // })
+        await context.conversation.enter('signInUserMiddleware')
     }
 })
 
-bot.command('mycode', async (context) => {
+// bot.command('mycode', async (context) => {
 
-    const item = context.match
-    console.log(userInfo);
-    const result = signIn(item, await userInfo)
-    console.log(result);
-    context.reply('Selamat ')
-})
+//     console.log('mycode');
+//     const item = context.match
+//     const result = await signIn(item, userInfo)
+//     console.log(result)
+//     await context.reply(`Selamat Berhasil autentikasi: ${item}`)
+// })
 
 bot.hears('/hi', async (ctx) => {
     await bot.api.sendMessage(ctx.chat.id, 'Hello 👋')
