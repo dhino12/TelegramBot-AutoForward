@@ -50,31 +50,14 @@ bot.command('connect', async (context) => {
     
     await context.conversation.enter('login')
     if (item.startsWith('+')) {
-        // await client.connect()
-        // const data = await client.sendCode({
-        //     apiHash: 'd7484191ce14a0ab151857143e11701f',
-        //     apiId: 20450718
-        // }, item)
-
         // console.log(data);
     }
 })
 
 // bot.on('message:text', async (context) => {
-    // const item = context.match
-    // const data = await context.getChat()
-    // console.log(data);
-
-    // const data = client.signInUser({
-    //     apiId: 20450718,
-    //     apiHash: 'd7484191ce14a0ab151857143e11701f',
-    // }, {
-    //     phoneNumber: '+6289526075275',
-    //     phoneCode: item || true,
-    //     onError: (error) => console.log(error)
-    // })
-
-    // console.log(client.session.save());
+//     const item = context.match
+//     const data = await context.getChat()
+//     console.log(data);
 // })
 
 // bot.on('message::')
@@ -89,13 +72,17 @@ bot.command('connect', async (context) => {
 
 
 bot.on('msg', async (ctx) => {
-    // console.log(ctx.chat.username);
-    // const chatMember = await ctx.chatMembers.getChatMember();
+    console.log(ctx.from);
+    console.log(ctx.chat.id);
+    console.log(await ctx.api.getChat(ctx.chat.id));
+    console.log(ctx.message.text);
+    ctx.forwardMessage(-993081767, ctx.chat.id)
+    const chatMember = await ctx.chatMembers.getChatMember();
 
     
-    // return ctx.reply(
-    //     `Hello, ${chatMember.user.first_name}! I see you are a ${chatMember.status} of this chat!`,
-    // );
+    return ctx.reply(
+        `Hello, ${chatMember.user.first_name}! I see you are a ${chatMember.status} of this chat!`,
+    );
 })
 
 bot.hears('/hi', async (ctx) => {
