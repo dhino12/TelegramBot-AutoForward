@@ -3,10 +3,11 @@ const path = require('path')
 
 class API {
     constructor() {
+        const server = { webogram: true };
         this.mtproto = new MTProto({
             api_id: 20450718,
             api_hash: 'd7484191ce14a0ab151857143e11701f',
-
+            server,
             storageOptions: {
                 path: path.resolve(__dirname, './data/1.json'),
             },
@@ -49,6 +50,16 @@ class API {
         }
 
         return Promise.reject(error);
+        }
+    }
+
+    async getSession() {
+        const session = await this.mtproto.storage
+        console.log(session);
+        if (session) {
+          console.log('Sesi:', session);
+        } else {
+          console.log('Sesi belum tersimpan');
         }
     }
 }

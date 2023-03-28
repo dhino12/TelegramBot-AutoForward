@@ -1,5 +1,8 @@
+const { TelegramClient } = require("telegram");
 const { bot } = require("../../server");
 const api = require("./API");
+const input = require("input"); // npm i input
+const { StringSession } = require("telegram/sessions");
 
 bot.callbackQuery('firstconnection', (context) => {
     bot.api.sendMessage(context.chat.id,  `
@@ -26,6 +29,11 @@ bot.callbackQuery('firstconnection', (context) => {
 bot.callbackQuery('documentation', (ctx) => {
     ctx.reply(`Untuk melihat dokumentasi silahkan ke [dokumentasi](google.com)`)
 })
+
+// Login as User
+const startClient = async () => {
+    
+}
 
 const sendCode = async (phone_number) => {
     let data = null
@@ -61,13 +69,27 @@ const signIn = async (mycode, yourInfo) => {
     }
 }
 
-const authImportSession = async () => {
-    try {
-        const data = await api.call('auth.Authorization')
-        console.log(data);
-    } catch (error) {
-        console.error(error);
-    }
-}
+// async function login (yourInfo) {
+//     try {
+//         console.log("Loading interactive example...");
+//         const stringSession = new StringSession("");
+//         const client = new TelegramClient(stringSession, 20450718, 'd7484191ce14a0ab151857143e11701f', {
+//             connectionRetries: 5,
+//         });
+        
+//         await client.start({
+//             phoneNumber: async () => await input.text("number ?"),
+//             password: async () => await input.text("password?"),
+//             phoneCode: async () => await input.text("Code ?"),
+//             onError: (err) => console.log(err),
+//         });
+//         console.log("You should now be connected.");
+//         console.log(client.session.save()); // Save this string to avoid logging in again
+//         await client.sendMessage("me", { message: "Hello!" });
+//         // return data
+//     } catch (error) {
+//         console.error(error);
+//     }
+// }
 
-module.exports = { sendCode, signIn, authImportSession }
+module.exports = { sendCode, signIn }
