@@ -102,20 +102,20 @@ bot.callbackQuery('documentation', (ctx) => {
 //     return {...data, phone_number} // < phoce_code, phone_number
 // }
 
-// const signIn = async (mycode, yourInfo) => {
-//     console.log(yourInfo);
-//     try {
-//         const data = await api.call('auth.signIn', {
-//             phone_code: mycode,
-//             phone_number: yourInfo.phone_number,
-//             phone_code_hash: yourInfo.phone_code_hash
-//         })
+const signIn = async (mycode, yourInfo) => {
+    console.log(yourInfo);
+    try {
+        const data = await api.call('auth.signIn', {
+            phone_code: mycode,
+            phone_number: yourInfo.phone_number,
+            phone_code_hash: yourInfo.phone_code_hash
+        })
 
-//         return data
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }
+        return data
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 // async function login (yourInfo) {
 //     try {

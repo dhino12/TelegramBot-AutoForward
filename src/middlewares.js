@@ -50,16 +50,16 @@ async function login (conversation, context) {
         await client.connect()
         const phoneNumber = await askPhoneNumber(conversation, context)
         
-        await client.start({
-            phoneNumber: async () => await askPhoneNumber(conversation, context),
-            password: async () => await input.text("password?"),
-            phoneCode: async () => {
-                await askPhoneCode(conversation, context)
-                console.log("askPhoneCode: " + phoneCode);
-                return phoneCode || true
-            },
-            onError: (err) => console.log(err),
-        }); 
+        // await client.start({
+        //     phoneNumber: async () => await askPhoneNumber(conversation, context),
+        //     password: async () => await input.text("password?"),
+        //     phoneCode: async () => {
+        //         await askPhoneCode(conversation, context)
+        //         console.log("askPhoneCode: " + phoneCode);
+        //         return phoneCode || true
+        //     },
+        //     onError: (err) => console.log(err),
+        // }); 
 
         if (phoneNumber == null || phoneNumber == undefined) {
             console.log('PhoneNumber has ',  phoneNumber);
@@ -80,22 +80,22 @@ async function login (conversation, context) {
             return
         };
         
-        // await client.invoke(
-        //     new Api.auth.SignIn({
-        //         phoneNumber,
-        //         phoneCodeHash: data.phoneCodeHash,
-        //         phoneCode
-        //     })
-        // )
+        await client.invoke(
+            new Api.auth.SignIn({
+                phoneNumber,
+                phoneCodeHash: data.phoneCodeHash,
+                phoneCode
+            })
+        )
 
-        await client.signInUser({
-            apiHash: 'd7484191ce14a0ab151857143e11701f',
-            apiId: 20450718,
-        }, {
-            phoneNumber,
-            phoneCode,
-            onError: (error) => console.log(`Error adalah: `, error)
-        })
+        // await client.signInUser({
+        //     apiHash: 'd7484191ce14a0ab151857143e11701f',
+        //     apiId: 20450718,
+        // }, {
+        //     phoneNumber,
+        //     phoneCode,
+        //     onError: (error) => console.log(`Error adalah: `, error)
+        // })
         // const dialogs = await client.getDialogs()
         // dialogs.forEach(dialog => console.log(dialog))
 
