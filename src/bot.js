@@ -10,17 +10,22 @@ bot.command('start', async (context) => {
     inlineKeyboard.text('Koneksi Pertama', 'firstconnection')
     inlineKeyboard.text('Dokumentasi / Bantuan', 'documentation')
     console.log(context.chat.id);
-    await bot.api.sendMessage(context.chat.id, `
-        Halo Selamat Datang, ${context.chat.first_name || context.chat.username} 👋.\nini adalah bot forward yang akan membantu kamu untuk meneruskan pesan ke lebih dari 1 chat group / channel, \ngunakan perintah /menu untuk melihat menu
-    `, {  
-        reply_markup: inlineKeyboard
-    })
+    try {
+        await bot.api.sendMessage(context.chat.id, `
+            Halo Selamat Datang, ${context.chat.first_name || context.chat.username} 👋.\nini adalah bot forward yang akan membantu kamu untuk meneruskan pesan ke lebih dari 1 chat group / channel, \ngunakan perintah /menu untuk melihat menu
+        `, {  
+            reply_markup: inlineKeyboard
+        })
 
-    context.session.name = 'John Doe';
-    context.session.age = 30;
-    // await getDialogs()
-    // Send welcome message
-    await context.reply(`Hello, ${context.session.name}!`);
+        context.session.name = 'John Doe';
+        context.session.age = 30;
+        // await getDialogs()
+        // Send welcome message
+        await context.reply(`Hello, ${context.session.name}!`);
+    } catch (error) {
+        console.error('start error');
+        console.error(error);
+    }
 })
 
 bot.command('menu', async (context) => {
@@ -72,19 +77,23 @@ bot.command('connect', async (context) => {
 
 
 bot.on('msg', async (ctx) => {
-    console.log(ctx.from);
-    console.log(ctx.chat.id);
-    console.log(await ctx.api.getChat(ctx.chat.id));
-    console.log(ctx.message.text);
-    ctx.forwardMessage(-993081767, ctx.chat.id)
-    const chatMember = await ctx.chatMembers.getChatMember();
+    // console.log(ctx.from);
+    // console.log(ctx.chat.id);
+    // console.log(await ctx.api.getChat(ctx.chat.id));
+    // console.log(ctx.message.text);
+    // ctx.forwardMessage(-993081767, ctx.chat.id)
+    // const chatMember = await ctx.chatMembers.getChatMember();
 
     
-    return ctx.reply(
-        `Hello, ${chatMember.user.first_name}! I see you are a ${chatMember.status} of this chat!`,
-    );
+    // return ctx.reply(
+    //     `Hello, ${chatMember.user.first_name}! I see you are a ${chatMember.status} of this chat!`,
+    // );
 })
 
 bot.hears('/hi', async (ctx) => {
-    await bot.api.sendMessage(ctx.chat.id, 'Hello 👋')
+    try {
+        
+    } catch (error) {
+        
+    }
 })

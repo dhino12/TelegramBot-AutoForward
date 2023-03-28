@@ -1,10 +1,15 @@
 const { createConversation } = require("@grammyjs/conversations")
 const { TelegramClient, Api } = require("telegram")
-const { StringSession } = require("telegram/sessions")
+const { StringSession, StoreSession } = require("telegram/sessions")
 const { bot } = require("../server")
 const { sendCode, signIn } = require("./handler/auth")
 const input = require('input')
+const strTo32bit = require("./utils/utils")
+const utf8 = require('utf8')
 let phoneCode = 0
+const client = new TelegramClient(new StringSession(''), 20450718, 'd7484191ce14a0ab151857143e11701f', {
+    connectionRetries: 5,
+});
 
 async function askPhoneNumber(conversation, context) {
     try {
@@ -42,10 +47,6 @@ async function askPhoneCode(conversation, context) {
 async function login (conversation, context) {
     try {
         console.log("Loading interactive example...");
-        const stringSession = new StringSession("");
-        const client = new TelegramClient(stringSession, 20450718, 'd7484191ce14a0ab151857143e11701f', {
-            connectionRetries: 5,
-        });
         
         await client.connect()
         const phoneNumber = await askPhoneNumber(conversation, context)
@@ -79,12 +80,13 @@ async function login (conversation, context) {
             console.log('PhoneCode has ',  phoneCode);
             return
         };
+        console.log(utf8.encode(phoneCode));
         
         await client.invoke(
             new Api.auth.SignIn({
                 phoneNumber,
-                phoneCodeHash: data.phoneCodeHash,
-                phoneCode
+                phoneCodeHash: dataPhoneCodeHash.phoneCodeHash,
+                phoneCode: phoneCode.toString('utf-8')
             })
         )
 
@@ -106,12 +108,12 @@ async function login (conversation, context) {
         //     onError: (err) => console.log(err),
         // });
         // console.log("You should now be connected.");
-        console.log(client.session.save()); // Save this string to avoid logging in again
+        console.log(client); // Save this string to avoid logging in again
         // return data
         // await client.disconnect()
     } catch (error) {
         console.error(error);
-        context.reply(`FLOOD: anda sudah batas tunggu hingga ${error.seconds} detik`)
+        context.reply(`FLOOD: anda sudah mencapai batas, tunggu hingga ${error.seconds} detik`)
     }
 }
 
