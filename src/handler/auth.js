@@ -31,43 +31,91 @@ bot.callbackQuery('documentation', (ctx) => {
 })
 
 // Login as User
-const startClient = async () => {
+// const startClient = async () => {
+//     const stringSession = new StringSession("");
+//     const client = new TelegramClient(stringSession, 20450718, 'd7484191ce14a0ab151857143e11701f', {
+//         connectionRetries: 5,
+//     });
+//     await client.connect()
     
-}
+//     client.sendCode({
+//         apiHash: '',
+//         apiId: 12
+//     }, '+62')
 
-const sendCode = async (phone_number) => {
-    let data = null
+//     client.signInUser({
+//         apiHash: '', 
+//         apiId: 12
+//     }, {
+//         phoneNumber: '',
+//         phoneCode: '',
+//         onError: (err) => console.log(err)
+//     })
+//     client.session.save
+//     return client;
+// }
 
-    try {
-        data = await api.call('auth.sendCode', {
-            phone_number,
-            settings: {
-              _: 'codeSettings',
-            },
+// const disconnectClient = async (client) => {
+//     await client.disconnect()
+// }
+
+// const sendCode = async (phoneNumber, client) => {
+//     try {
+//         const data = await client.sendCode({
+//             apiHash: '',
+//             apiId: 12
+//         }, `${phoneNumber}`)
+//         return data
+//     } catch (error) {
+//         console.error(error);
+//         return undefined
+//     }
+// }
+
+// const signIn = async (client, credential, authParams) => {
+//     try {
+//         const data = await client.signInUser(credential, authParams)
+//         console.log(data);
+//         return {data, session: client.session.save()}
+//     } catch (error) {
+//         console.error(error);
+//         return undefined
+//     }
+// }
+
+// const sendCode = async (phone_number) => {
+//     let data = null
+
+//     try {
+//         data = await api.call('auth.sendCode', {
+//             phone_number,
+//             settings: {
+//               _: 'codeSettings',
+//             },
             
-        });
+//         });
 
-    } catch (error) {
-        console.error(error);
-    }
+//     } catch (error) {
+//         console.error(error);
+//     }
     
-    return {...data, phone_number} // < phoce_code, phone_number
-}
+//     return {...data, phone_number} // < phoce_code, phone_number
+// }
 
-const signIn = async (mycode, yourInfo) => {
-    console.log(yourInfo);
-    try {
-        const data = await api.call('auth.signIn', {
-            phone_code: mycode,
-            phone_number: yourInfo.phone_number,
-            phone_code_hash: yourInfo.phone_code_hash
-        })
+// const signIn = async (mycode, yourInfo) => {
+//     console.log(yourInfo);
+//     try {
+//         const data = await api.call('auth.signIn', {
+//             phone_code: mycode,
+//             phone_number: yourInfo.phone_number,
+//             phone_code_hash: yourInfo.phone_code_hash
+//         })
 
-        return data
-    } catch (error) {
-        console.error(error);
-    }
-}
+//         return data
+//     } catch (error) {
+//         console.error(error);
+//     }
+// }
 
 // async function login (yourInfo) {
 //     try {
@@ -92,4 +140,4 @@ const signIn = async (mycode, yourInfo) => {
 //     }
 // }
 
-module.exports = { sendCode, signIn }
+// module.exports = { sendCode, signIn, startClient, disconnectClient } 

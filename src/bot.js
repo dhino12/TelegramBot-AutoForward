@@ -1,6 +1,6 @@
 const { createConversation } = require("@grammyjs/conversations");
 const { bot, grammy } = require("../server");
-const { signIn, sendCode, authImportSession } = require("./handler/auth");
+// const { signIn, sendCode, authImportSession } = require("./handler/auth");
 const { signInUser } = require("./middlewares");
 // require('./handler/auth')
 let userInfo = null // <= information about phone_code, phone_number
@@ -50,9 +50,32 @@ bot.command('connect', async (context) => {
     
     await context.conversation.enter('login')
     if (item.startsWith('+')) {
+        // await client.connect()
+        // const data = await client.sendCode({
+        //     apiHash: 'd7484191ce14a0ab151857143e11701f',
+        //     apiId: 20450718
+        // }, item)
+
+        // console.log(data);
     }
 })
 
+// bot.on('message:text', async (context) => {
+    // const item = context.match
+    // const data = await context.getChat()
+    // console.log(data);
+
+    // const data = client.signInUser({
+    //     apiId: 20450718,
+    //     apiHash: 'd7484191ce14a0ab151857143e11701f',
+    // }, {
+    //     phoneNumber: '+6289526075275',
+    //     phoneCode: item || true,
+    //     onError: (error) => console.log(error)
+    // })
+
+    // console.log(client.session.save());
+// })
 
 // bot.on('message::')
 // bot.command('mycode', async (context) => {
@@ -66,7 +89,7 @@ bot.command('connect', async (context) => {
 
 
 bot.on('msg', async (ctx) => {
-    console.log(ctx.chat.username);
+    // console.log(ctx.chat.username);
     // const chatMember = await ctx.chatMembers.getChatMember();
 
     
