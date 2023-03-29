@@ -40,10 +40,10 @@ async function askPhoneCode(conversation, context) {
 }
 
 async function loginAsUser(conversation, context) {
+    const { client } = connectAsUser(context.from.id)
+    console.log("Loading interactive example...");
     try {
-        console.log("Loading interactive example...");
         
-        const { client } = connectAsUser(context.from.id)
         await client.connect()
         const phoneNumber = await askPhoneNumber(conversation, context)
         const resultCodeHash = await sendCode(client, phoneNumber)
@@ -71,7 +71,6 @@ async function loginAsUser(conversation, context) {
             isBot: context.from.is_bot
         })
 
-        client.disconnect()
     } catch (error) {
         if (Number.isInteger(error.code) || error.seconds == undefined) {
             context.reply(error.message)
@@ -81,6 +80,8 @@ async function loginAsUser(conversation, context) {
         }
         console.error(error);
     }
+    
+    client.disconnect()
 }
 
 bot.use(createConversation(loginAsUser))
