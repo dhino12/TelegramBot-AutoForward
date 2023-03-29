@@ -20,11 +20,15 @@ class SaveSession {
         const fileSession = fs.readFileSync(`${filePath}`, 'utf-8')
         const sessions = JSON.parse(fileSession)
 
-        console.log(sessions);
+        // console.log(sessions);
         return sessions
     }
 
     static set(userAttrib) {
+        /**
+         * TODO 
+         * SET Session to session.json
+         */
         if (Array.isArray(userAttrib)) {
             return 'Not support for array, use object'
         }

@@ -1,5 +1,8 @@
 // const { TelegramClient } = require("telegram");
+const { TelegramClient, Api } = require("telegram");
+const { StringSession } = require("telegram/sessions");
 const { bot } = require("../../server");
+const { SaveSession } = require("../utils/saveSession");
 // const api = require("./API");
 // const input = require("input"); // npm i input
 // const { StringSession } = require("telegram/sessions");
@@ -30,114 +33,60 @@ bot.callbackQuery('documentation', (ctx) => {
     ctx.reply(`Untuk melihat dokumentasi silahkan ke [dokumentasi](google.com)`)
 })
 
-// Login as User
-// const startClient = async () => {
-//     const stringSession = new StringSession("");
-//     const client = new TelegramClient(stringSession, 20450718, 'd7484191ce14a0ab151857143e11701f', {
-//         connectionRetries: 5,
-//     });
-//     await client.connect()
+function connectAsUser(idFromUser) {
+    let session = ''
     
-//     client.sendCode({
-//         apiHash: '',
-//         apiId: 12
-//     }, '+62')
+    const filePath = SaveSession.checkSessionExist()
+    const result = SaveSession.loadSession(filePath)
+    const IdDetected = result.filter(({id}) => id == idFromUser)[0]
 
-//     client.signInUser({
-//         apiHash: '', 
-//         apiId: 12
-//     }, {
-//         phoneNumber: '',
-//         phoneCode: '',
-//         onError: (err) => console.log(err)
-//     })
-//     client.session.save
-//     return client;
-// }
+    if (IdDetected) {
+        session = IdDetected.session
+    }
+    console.log(IdDetected);
 
-// const disconnectClient = async (client) => {
-//     await client.disconnect()
-// }
+    const client = new TelegramClient(new StringSession(session), process.env.APPID, process.env.APPHASH, {
+        connectionRetries: 5,
+    });
 
-// const sendCode = async (phoneNumber, client) => {
-//     try {
-//         const data = await client.sendCode({
-//             apiHash: '',
-//             apiId: 12
-//         }, `${phoneNumber}`)
-//         return data
-//     } catch (error) {
-//         console.error(error);
-//         return undefined
-//     }
-// }
+    return { client }
+}
 
-// const signIn = async (client, credential, authParams) => {
-//     try {
-//         const data = await client.signInUser(credential, authParams)
-//         console.log(data);
-//         return {data, session: client.session.save()}
-//     } catch (error) {
-//         console.error(error);
-//         return undefined
-//     }
-// }
+async function sendCode(client, phoneNumber) {
+    if (phoneNumber == null || phoneNumber == undefined) {
+        console.log('PhoneNumber has ',  phoneNumber);
+        return
+    };
 
-// const sendCode = async (phone_number) => {
-//     let data = null
+    const resultCodeHash = await client.sendCode({
+        apiHash: 'd7484191ce14a0ab151857143e11701f',
+        apiId: 20450718
+    }, phoneNumber)
 
-//     try {
-//         data = await api.call('auth.sendCode', {
-//             phone_number,
-//             settings: {
-//               _: 'codeSettings',
-//             },
-            
-//         });
+    console.log(resultCodeHash);
+    return resultCodeHash
+}
 
-//     } catch (error) {
-//         console.error(error);
-//     }
-    
-//     return {...data, phone_number} // < phoce_code, phone_number
-// }
+async function signIn(client, codeAuth) {
+    /** contents of the codeAuth are
+     * {
+     *  phoneCodeHash, 
+     *  yourCodeFromTelegram, 
+     *  phoneNumber
+     * }
+     */
+    if (codeAuth.code == null || codeAuth.code == undefined) {
+        console.log('codeAuth has ',  codeAuth.code);
+        return
+    };
 
-// const signIn = async (mycode, yourInfo) => {
-//     console.log(yourInfo);
-//     try {
-//         const data = await api.call('auth.signIn', {
-//             phone_code: mycode,
-//             phone_number: yourInfo.phone_number,
-//             phone_code_hash: yourInfo.phone_code_hash
-//         })
+    await client.invoke(
+        new Api.auth.SignIn({
+            phoneNumber: codeAuth.phoneNumber,
+            phoneCodeHash: codeAuth.phoneCodeHash,
+            phoneCode: codeAuth.code.toString('utf-8')
+        })
+    )
+}
 
-//         return data
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }
-
-// async function login (yourInfo) {
-//     try {
-//         console.log("Loading interactive example...");
-//         const stringSession = new StringSession("");
-//         const client = new TelegramClient(stringSession, 20450718, 'd7484191ce14a0ab151857143e11701f', {
-//             connectionRetries: 5,
-//         });
-        
-//         await client.start({
-//             phoneNumber: async () => await input.text("number ?"),
-//             password: async () => await input.text("password?"),
-//             phoneCode: async () => await input.text("Code ?"),
-//             onError: (err) => console.log(err),
-//         });
-//         console.log("You should now be connected.");
-//         console.log(client.session.save()); // Save this string to avoid logging in again
-//         await client.sendMessage("me", { message: "Hello!" });
-//         // return data
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }
-
-// module.exports = { sendCode, signIn, startClient, disconnectClient } 
+module.exports = { sendCode, signIn, connectAsUser } 

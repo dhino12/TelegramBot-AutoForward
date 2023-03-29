@@ -1,12 +1,10 @@
 const { createConversation } = require("@grammyjs/conversations")
 const { TelegramClient, Api } = require("telegram")
+const { sendCode } = require("telegram/client/auth")
 const { StringSession } = require("telegram/sessions")
 const { bot } = require("../server")
+const { connectAsUser, signIn } = require("./handler/auth")
 const { SaveSession } = require("./utils/saveSession")
-let phoneCode = 0
-const client = new TelegramClient(new StringSession(''), 20450718, 'd7484191ce14a0ab151857143e11701f', {
-    connectionRetries: 5,
-});
 
 async function askPhoneNumber(conversation, context) {
     try {
@@ -31,7 +29,7 @@ async function askPhoneCode(conversation, context) {
         await context.reply('Silahkan masukan code user yang dikirim telegram dari SMS / chat app\n\nFor Example, your login code is 123456 dan masukan mycode123456')
         const { message } = await conversation.wait()
         console.log("askPhoneCode: " + message.text);
-        phoneCode = message.text.replace('mycode', '').trim()
+        const phoneCode = message.text.replace('mycode', '').trim()
         
         return phoneCode
     } catch (error) {
@@ -41,40 +39,22 @@ async function askPhoneCode(conversation, context) {
     return null
 }
 
-async function login (conversation, context) {
+async function loginAsUser(conversation, context) {
     try {
         console.log("Loading interactive example...");
         
+        const { client } = connectAsUser(context.from.id)
         await client.connect()
         const phoneNumber = await askPhoneNumber(conversation, context)
-
-        if (phoneNumber == null || phoneNumber == undefined) {
-            console.log('PhoneNumber has ',  phoneNumber);
-            return
-        };
-        
-        const dataPhoneCodeHash = await client.sendCode({
-            apiHash: 'd7484191ce14a0ab151857143e11701f',
-            apiId: 20450718
-        }, phoneNumber)
-        console.log(dataPhoneCodeHash);
-
+        const resultCodeHash = await sendCode(client, phoneNumber)
         const phoneCode = await askPhoneCode(conversation, context)
-        console.log(phoneCode);
+        // connect as User
+        await signIn(client, { 
+            phoneCodeHash: resultCodeHash.phoneCodeHash,
+            code: phoneCode,
+            phoneNumber
+        })
         
-        if (phoneCode == null || phoneCode == undefined) {
-            console.log('PhoneCode has ',  phoneCode);
-            return
-        };
-        
-        await client.invoke(
-            new Api.auth.SignIn({
-                phoneNumber,
-                phoneCodeHash: dataPhoneCodeHash.phoneCodeHash,
-                phoneCode: phoneCode.toString('utf-8')
-            })
-        )
-
         let dialogs = await client.getDialogs()
         dialogs = dialogs.map(dialog => ({
             id: dialog.id,
@@ -83,8 +63,6 @@ async function login (conversation, context) {
             isChannel: dialog.isChannel
         }))
 
-        console.log(client.session.save()); // Save this string to avoid logging in again
-
         SaveSession.set({
             id: context.from.id,
             phoneNumber,
@@ -92,21 +70,19 @@ async function login (conversation, context) {
             dialogs,
             isBot: context.from.is_bot
         })
-        
-        await client.disconnect()
+
+        client.disconnect()
     } catch (error) {
         if (Number.isInteger(error.code) || error.seconds == undefined) {
             context.reply(error.message)
         }
-
         if (error.seconds) {
             context.reply(`FLOOD: anda sudah mencapai batas, tunggu hingga ${error.seconds} detik`)
         }
+        console.error(error);
     }
 }
 
-bot.use(createConversation(login))
+bot.use(createConversation(loginAsUser))
 
-module.exports = {
-    login
-}
+module.exports = { loginAsUser }

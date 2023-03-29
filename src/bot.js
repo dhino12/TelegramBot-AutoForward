@@ -1,4 +1,5 @@
 const { bot, grammy } = require("../server");
+require('./middlewares')
 
 bot.command('start', async (context) => {
     const inlineKeyboard = new grammy.InlineKeyboard()
@@ -45,7 +46,7 @@ bot.command('menu', async (context) => {
 bot.command('connect', async (context) => {
     const item = context.match
     
-    await context.conversation.enter('login')
+    await context.conversation.enter('loginAsUser')
     if (item.startsWith('+')) {
         // console.log(data);
     }
