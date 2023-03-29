@@ -1,10 +1,4 @@
-const { createConversation } = require("@grammyjs/conversations");
 const { bot, grammy } = require("../server");
-// const { signIn, sendCode, authImportSession } = require("./handler/auth");
-const { signInUser } = require("./middlewares");
-const {SaveSession} = require("./utils/saveSession");
-// require('./handler/auth')
-let userInfo = null // <= information about phone_code, phone_number
 
 bot.command('start', async (context) => {
     const inlineKeyboard = new grammy.InlineKeyboard()

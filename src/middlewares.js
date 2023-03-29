@@ -1,11 +1,7 @@
 const { createConversation } = require("@grammyjs/conversations")
 const { TelegramClient, Api } = require("telegram")
-const { StringSession, StoreSession } = require("telegram/sessions")
+const { StringSession } = require("telegram/sessions")
 const { bot } = require("../server")
-const { sendCode, signIn } = require("./handler/auth")
-const input = require('input')
-const strTo32bit = require("./utils/utils")
-const utf8 = require('utf8')
 const { SaveSession } = require("./utils/saveSession")
 let phoneCode = 0
 const client = new TelegramClient(new StringSession(''), 20450718, 'd7484191ce14a0ab151857143e11701f', {
@@ -51,17 +47,6 @@ async function login (conversation, context) {
         
         await client.connect()
         const phoneNumber = await askPhoneNumber(conversation, context)
-        
-        // await client.start({
-        //     phoneNumber: async () => await askPhoneNumber(conversation, context),
-        //     password: async () => await input.text("password?"),
-        //     phoneCode: async () => {
-        //         await askPhoneCode(conversation, context)
-        //         console.log("askPhoneCode: " + phoneCode);
-        //         return phoneCode || true
-        //     },
-        //     onError: (err) => console.log(err),
-        // }); 
 
         if (phoneNumber == null || phoneNumber == undefined) {
             console.log('PhoneNumber has ',  phoneNumber);
@@ -81,7 +66,6 @@ async function login (conversation, context) {
             console.log('PhoneCode has ',  phoneCode);
             return
         };
-        console.log(utf8.encode(phoneCode));
         
         await client.invoke(
             new Api.auth.SignIn({
@@ -91,14 +75,6 @@ async function login (conversation, context) {
             })
         )
 
-        // await client.signInUser({
-        //     apiHash: 'd7484191ce14a0ab151857143e11701f',
-        //     apiId: 20450718,
-        // }, {
-        //     phoneNumber,
-        //     phoneCode,
-        //     onError: (error) => console.log(`Error adalah: `, error)
-        // })
         let dialogs = await client.getDialogs()
         dialogs = dialogs.map(dialog => ({
             id: dialog.id,
@@ -107,14 +83,8 @@ async function login (conversation, context) {
             isChannel: dialog.isChannel
         }))
 
-        // await client.start({
-        //     phoneNumber,
-        //     password: async () => await input.text("password?"),
-        //     phoneCode: async () => await input.text("Code? "),
-        //     onError: (err) => console.log(err),
-        // });
-        // console.log("You should now be connected.");
         console.log(client.session.save()); // Save this string to avoid logging in again
+
         SaveSession.set({
             id: context.from.id,
             phoneNumber,
@@ -122,7 +92,7 @@ async function login (conversation, context) {
             dialogs,
             isBot: context.from.is_bot
         })
-        // return data
+        
         await client.disconnect()
     } catch (error) {
         if (Number.isInteger(error.code) || error.seconds == undefined) {
