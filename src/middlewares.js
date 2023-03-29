@@ -6,6 +6,7 @@ const { sendCode, signIn } = require("./handler/auth")
 const input = require('input')
 const strTo32bit = require("./utils/utils")
 const utf8 = require('utf8')
+const { SaveSession } = require("./utils/saveSession")
 let phoneCode = 0
 const client = new TelegramClient(new StringSession(''), 20450718, 'd7484191ce14a0ab151857143e11701f', {
     connectionRetries: 5,
@@ -98,8 +99,13 @@ async function login (conversation, context) {
         //     phoneCode,
         //     onError: (error) => console.log(`Error adalah: `, error)
         // })
-        // const dialogs = await client.getDialogs()
-        // dialogs.forEach(dialog => console.log(dialog))
+        let dialogs = await client.getDialogs()
+        dialogs = dialogs.map(dialog => ({
+            id: dialog.id,
+            title: dialog.title,
+            isGroup: dialog.isGroup,
+            isChannel: dialog.isChannel
+        }))
 
         // await client.start({
         //     phoneNumber,
@@ -108,12 +114,24 @@ async function login (conversation, context) {
         //     onError: (err) => console.log(err),
         // });
         // console.log("You should now be connected.");
-        console.log(client); // Save this string to avoid logging in again
+        console.log(client.session.save()); // Save this string to avoid logging in again
+        SaveSession.set({
+            id: context.from.id,
+            phoneNumber,
+            session: client.session.save(),
+            dialogs,
+            isBot: context.from.is_bot
+        })
         // return data
-        // await client.disconnect()
+        await client.disconnect()
     } catch (error) {
-        console.error(error);
-        context.reply(`FLOOD: anda sudah mencapai batas, tunggu hingga ${error.seconds} detik`)
+        if (Number.isInteger(error.code) || error.seconds == undefined) {
+            context.reply(error.message)
+        }
+
+        if (error.seconds) {
+            context.reply(`FLOOD: anda sudah mencapai batas, tunggu hingga ${error.seconds} detik`)
+        }
     }
 }
 

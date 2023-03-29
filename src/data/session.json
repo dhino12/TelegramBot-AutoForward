@@ -1,0 +1,34 @@
+[
+  {
+    "id": 123456,
+    "phoneNumber": "+6282191029737",
+    "session": "12adaweqwrad12131scxzc",
+    "dialogs": [{ "id": "", "name": "", "isGroup": true, "isBot": false }]
+  },
+  {
+    "id": 6274343640,
+    "phoneNumber": "+6289526075275",
+    "session": "1BQANOTEuMTA4LjU2LjEzMAG7kL3jJnLUI7139uS46vTbxRwwZNqDPZPYxpcjUrgNVbcLP6dcoLAzxn7DWkQje1bymtIEaw5tp/8qHeydxsWLe1WzCv/Aa0nKXr2SPrfHJlSC80b2U6QNZEoLVPR0erBLa5CseUOtx1YC6y0ubpymosCsYDW7kYAz/Adtja4FHM7bKd2JO3RuwPC5T16L7mImMR4e8wI0SMzNidQ2ptTXnuWcmFJaq5WmSUTzYn4sp5OBkmtTTw2agV+z5BUNWhktnrMa7RJ32fAsgaOZ8zaLMCC2GLcqKpWpbOV54wzaoUsp1AtdJxtj1jBa5HGDVSCT5qiuPKMxFFqRu6qVztuW3w==",
+    "dialogs": [
+      {
+        "id": "777000",
+        "title": "Telegram",
+        "isGroup": false,
+        "isChannel": false
+      },
+      {
+        "id": "6202836786",
+        "title": "Franka",
+        "isGroup": false,
+        "isChannel": false
+      },
+      {
+        "id": "6050458835",
+        "title": "Joko Hendoko",
+        "isGroup": false,
+        "isChannel": false
+      }
+    ],
+    "isBot": false
+  }
+]

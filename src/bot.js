@@ -2,6 +2,7 @@ const { createConversation } = require("@grammyjs/conversations");
 const { bot, grammy } = require("../server");
 // const { signIn, sendCode, authImportSession } = require("./handler/auth");
 const { signInUser } = require("./middlewares");
+const {SaveSession} = require("./utils/saveSession");
 // require('./handler/auth')
 let userInfo = null // <= information about phone_code, phone_number
 
@@ -16,12 +17,9 @@ bot.command('start', async (context) => {
         `, {  
             reply_markup: inlineKeyboard
         })
+        
+        // saveSession('', '')
 
-        context.session.name = 'John Doe';
-        context.session.age = 30;
-        // await getDialogs()
-        // Send welcome message
-        await context.reply(`Hello, ${context.session.name}!`);
     } catch (error) {
         console.error('start error');
         console.error(error);
@@ -76,7 +74,7 @@ bot.command('connect', async (context) => {
 // })
 
 
-bot.on('msg', async (ctx) => {
+// bot.on('msg', async (ctx) => {
     // console.log(ctx.from);
     // console.log(ctx.chat.id);
     // console.log(await ctx.api.getChat(ctx.chat.id));
@@ -88,12 +86,15 @@ bot.on('msg', async (ctx) => {
     // return ctx.reply(
     //     `Hello, ${chatMember.user.first_name}! I see you are a ${chatMember.status} of this chat!`,
     // );
-})
+// })
+
 
 bot.hears('/hi', async (ctx) => {
     try {
-        
+        await ctx.reply('Hello 👋')
+
+        console.log(ctx.from);
     } catch (error) {
-        
+        console.error(error);
     }
 })
