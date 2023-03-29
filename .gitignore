@@ -68,6 +68,9 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
+# Session
+src/data/Session.json
+
 # dotenv environment variables file
 .env
 .env.test
