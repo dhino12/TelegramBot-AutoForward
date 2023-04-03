@@ -1,37 +1,23 @@
 const { createConversation } = require("@grammyjs/conversations")
 const { TelegramClient, Api } = require("telegram")
-const { sendCode } = require("telegram/client/auth")
 const { StringSession } = require("telegram/sessions")
 const { bot } = require("../server")
-const { connectAsUser, signIn } = require("./handler/auth")
-const { SaveSession } = require("./utils/saveSession")
+const { SaveStorage } = require("./utils/saveStorage")
+const { connectAsUser, sendCode, signIn } = require("./handler/auth")
+let phoneCode = 0
+// const client = new TelegramClient(new StringSession(''), 20450718, 'd7484191ce14a0ab151857143e11701f', {
+//     connectionRetries: 5,
+// });
 
-async function askPhoneNumber(conversation, context) {
-    try {
-        await context.reply('Silahkan masukan nomer HP :')
-        const { message } = await conversation.wait()
-        console.log(message.text);
-        if (message.text.startsWith('+')) {
-            await context.reply(`No HP Anda: ${message.text}`)
-            return message.text
-        }
-
-        return null
-    } catch (error) {
-        console.error(error);
-    }
-
-    return null
-}
-
-async function askPhoneCode(conversation, context) {
+async function askPhoneCode(conversation, context, auth) {
     try {
         await context.reply('Silahkan masukan code user yang dikirim telegram dari SMS / chat app\n\nFor Example, your login code is 123456 dan masukan mycode123456')
         const { message } = await conversation.wait()
         console.log("askPhoneCode: " + message.text);
-        const phoneCode = message.text.replace('mycode', '').trim()
+        phoneCode = message.text.replace('mycode', '').trim()
+        const authSignin = await signIn({...auth, code: phoneCode.toString('utf-8')})
         
-        return phoneCode
+        return authSignin
     } catch (error) {
         console.error(error);
     }
@@ -39,19 +25,24 @@ async function askPhoneCode(conversation, context) {
     return null
 }
 
-async function loginAsUser(conversation, context) {
-    const { client } = connectAsUser(context.from.id)
-    console.log("Loading interactive example...");
+async function login (conversation, context) {
     try {
-        
+        const {client} = await connectAsUser(context.from.id)
+        console.log("Loading interactive example...");
         await client.connect()
-        const phoneNumber = await askPhoneNumber(conversation, context)
-        const resultCodeHash = await sendCode(client, phoneNumber)
-        const phoneCode = await askPhoneCode(conversation, context)
-        // connect as User
-        await signIn(client, { 
-            phoneCodeHash: resultCodeHash.phoneCodeHash,
-            code: phoneCode,
+        
+        const phoneNumber = context.match
+        console.log(phoneNumber);
+
+        console.log(client.isUserAuthorized());
+        if (!await client.isUserAuthorized()) {
+            await context.reply('Anda Sudah Login 👌')
+            return await client.disconnect()
+        }
+
+        const auth = await sendCode(phoneNumber)
+        const askCode = await askPhoneCode(conversation, context, {
+            ...auth, 
             phoneNumber
         })
         
@@ -63,27 +54,31 @@ async function loginAsUser(conversation, context) {
             isChannel: dialog.isChannel
         }))
 
-        SaveSession.set({
+        console.log(client.session.save()); // Save this string to avoid logging in again
+
+        SaveStorage.set({ 
             id: context.from.id,
-            phoneNumber,
+            name: context.from.first_name,
             session: client.session.save(),
             dialogs,
             isBot: context.from.is_bot
-        })
-
+        }, 'session')
+        
+        await client.disconnect()
     } catch (error) {
         if (Number.isInteger(error.code) || error.seconds == undefined) {
             context.reply(error.message)
         }
+
         if (error.seconds) {
             context.reply(`FLOOD: anda sudah mencapai batas, tunggu hingga ${error.seconds} detik`)
         }
-        console.error(error);
+        console.log(error);
     }
-    
-    client.disconnect()
 }
 
-bot.use(createConversation(loginAsUser))
+bot.use(createConversation(login))
 
-module.exports = { loginAsUser }
+module.exports = {
+    login
+}

@@ -1,16 +1,19 @@
 const fs = require('fs');
 const path = require('path');
-const validator = require('validator')
 
-class SaveSession {
-    static checkSessionExist() {
+class SaveStorage {
+    static checkSessionExist(fileName) {
         const dirPath = path.resolve(__dirname, '../data');
-        const filePath = `${dirPath}/session.json`
+        const filePath = `${dirPath}/${fileName}.json`
         if (!fs.existsSync(dirPath)) {
-            console.log('File Doesn\'t exist in src/data/session.json');
             console.log(`Create file in ${dirPath}`);
             fs.mkdirSync(dirPath)
+        }
+        
+        if (!fs.existsSync(filePath)) {
+            console.log(`File Doesn\'t exist in src/data/${fileName}.json`);
             fs.writeFileSync(`${filePath}`, "[]", 'utf-8')
+            // jika belum buat fileBaru dengan filePath
         }
 
         return filePath
@@ -24,49 +27,32 @@ class SaveSession {
         return sessions
     }
 
-    static set(userAttrib) {
+    static set(userAttrib, fileName) {
         /**
          * TODO 
          * SET Session to session.json
          */
         if (Array.isArray(userAttrib)) {
-            return 'Not support for array, use object'
+            throw 'Not support for array, use object'
         }
 
         if (userAttrib instanceof Object) {
-            const checkFileExist = this.checkSessionExist()
+            const checkFileExist = this.checkSessionExist(fileName)
             const sessions = this.loadSession(checkFileExist)
 
             const isDuplicate = sessions.find((session) => session.id == userAttrib.id)
             if (isDuplicate) {
-                throw 'ID / Phone Number is registerd'
+                throw 'ID is registerd'
             }
-
-            if (!validator.isMobilePhone(userAttrib.phoneNumber, "id-ID")) {
-                throw "Prefix / Phone Number is unvalid"
-            }
-
+            
             sessions.push(userAttrib)
             fs.writeFileSync(checkFileExist, JSON.stringify(sessions))
             console.log('Sessions save !');
 
-            return 'Session Save !'
-            /** userAttrib <======= dataExample
-                {
-                    "id": 123456,
-                    "phoneNumber": "+6282191029737",
-                    "session": "12adaweqwrad12131scxzc",
-                    "dialogs": [
-                        {
-                            "id": "",
-                            "name": "",
-                            "isGroup": true,
-                            "isBot": false    
-                        }
-                    ]
-                }
-            */
+            return true
         }
+
+        return false
     }
 }
 
@@ -82,4 +68,4 @@ class SaveSession {
 //     }
 // }
 
-module.exports = { SaveSession }
+module.exports = { SaveStorage }
