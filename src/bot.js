@@ -3,12 +3,7 @@ const textHelp = require("./data/textHelp.json");
 const { SaveStorage } = require("./utils/saveStorage");
 const validator = require("validator");
 const { resultSplitId, saveToStorage, checkWorker, loadWorkers } = require("./handler/forwardWorker");
-const { loginAsUser } = require("./middlewares");
-const { createConversation } = require("@grammyjs/conversations");
 const { connectAsUser } = require("./handler/auth");
-const { Api } = require("telegram");
-let client = null
-let auth = null
 require("./middlewares");
 
 bot.command("start", async (context) => {
@@ -65,44 +60,10 @@ bot.command("menu", async (context) => {
   );
 });
 
-bot.command("connect", async (context) => { 
-  // client = await (await connectAsUser(context.from.id)).client
-  // await client.connect()
-
-  // if (await client.isUserAuthorized()) {
-  //   context.reply('Anda Sudah Login')
-  // }
-  
-  // if (validator.default.isMobilePhone(context.match)) {
-  //   auth = await client.sendCode({
-  //     apiHash: process.env.APPHASH,
-  //     apiId: parseInt(process.env.APPID)
-  //   }, context.match.toString())
-  //   console.log(auth);
-  //   auth = new Promise((resolve, reject) => {
-  //     resolve({...auth, phoneNumber: context.match})
-  //   })
-  // }
+bot.command("connect", async (context) => {
   context.reply('Mohon tunggu nomer sedang di proses')
   await context.conversation.enter("login");
 });
-
-bot.command('mycode', async (context) => {
-  const code = context.match
-  console.log(await auth);
-  if (await auth) {
-    const {phoneCodeHash, phoneNumber} = await auth
-
-    client.invoke(
-      new Api.auth.SignIn({
-        phoneCode: code,
-        phoneNumber, phoneCodeHash
-      })
-    )
-    console.log(client.session.save());
-    client.disconnect()
-  }
-})
 
 bot.command("getchanel", async (context) => {
   const filePath = SaveStorage.checkSessionExist('session');
@@ -169,86 +130,53 @@ bot.command("forward", async (context) => {
 
   const { from, to } = resultSplitId(argAction, argLabel, argCommand);
   console.log(from,to);
-  saveToStorage({
+  const result = saveToStorage({
     from, to, 
     id: context.from.id, name: context.from.first_name,
     worker: argLabel.toString()
   })
+
+  if (result) return context.reply(`Worker Berhasil di simpan`)
+  else return context.reply(`Mohon maaf terjadi kesalahan, pastikan sesuai dengan format`)
 });
 
-// bot.on('message:text', async (context) => {
-//     const item = context.match
-//     const data = await context.getChat()
-//     console.log(data);
-// })
-
-// bot.on('message::')
-// bot.command('mycode', async (context) => {
-
-//     console.log('mycode');
-//     const item = context.match
-//     const result = await signIn(item, userInfo)
-//     console.log(result)
-//     await context.reply(`Selamat Berhasil autentikasi: ${item}`)
-// })
-
 bot.on('msg', async (ctx) => {
-    // console.log(ctx.from);
-    console.log(ctx.chat.id);
-    // console.log(await ctx.api.getChat(ctx.chat.id));
-    console.log(ctx.chat);
-    const resultWorker = loadWorkers(ctx.from.id)[0]
-    console.log(resultWorker);
-    if (resultWorker == undefined) return;
-
-    switch (true) {
-      case (resultWorker.from.length == 1 && resultWorker.to.length == 1):
-        console.log('masuk 1');
-        ctx.forwardMessage(resultWorker.to[0], resultWorker.from[0])
+  console.log(ctx.chat);
+  try {
+    switch (ctx.chat.type) {
+      case 'channel':
+        console.log(ctx.from);
         break;
-    
-      case (resultWorker.from.length <= 2 && resultWorker.to.length == 1): 
-        for (const iterator of resultWorker.from) {
-          ctx.forwardMessage(iterator, resultWorker.to[0])
-        }
-        break
-      case (resultWorker.from.length <= 2 && resultWorker.to.length <= 2): 
+      case 'supergroup':
+        const resultWorker = loadWorkers(ctx.from.id)[0]
+        console.log(resultWorker);
+        if (resultWorker == undefined) return;
+
         for (const from of resultWorker.from) {
           for (const to of resultWorker.to) {
-            ctx.forwardMessage(from , to)
+            ctx.forwardMessage(to , from)
           }
         }
+        break
+      case 'group': 
+        console.log(ctx.from);
+        break
+      case 'private':
+
         break
       default:
         break;
     }
-    for (let index = 0; index < resultWorker.length; index++) {
-      ctx.forwardMessage(resultWorker.from[index], )
-      
-    }
-    // ctx.forwardMessage(-993081767, ctx.chat.id)
-    // const chatMember = await ctx.chatMembers.getChatMember();
-
-    // return ctx.reply(
-    //     `Hello, ${chatMember.user.first_name}! I see you are a ${chatMember.status} of this chat!`,
-    // );
-})
-
-// bot.on('message', async (ctx) => {
-//   try {
-//     console.log(ctx.message); // location
-//   } catch (error) {
+  } catch (error) {
     
-//   }
-// })
+  }
+})
 
 bot.hears("/hi", async (ctx) => {
   try {
     console.log(ctx.message);
     await ctx.reply("Hello 👋");
 
-    // console.log(ctx.from);
   } catch (error) {
-    // console.error(error);
   }
 });
