@@ -54,6 +54,18 @@ class SaveStorage {
 
         return false
     }
+
+    static rm(id, fileName) {
+        const checkFileExist = this.checkSessionExist(fileName)
+        const sessions = this.loadSession(checkFileExist)
+
+        const removeSession = sessions.filter((session) => session.id != id)
+        console.log(removeSession);
+        fs.writeFileSync(checkFileExist, JSON.stringify(removeSession))
+        console.log('Sessions removed !');
+
+        return true
+    }
 }
 
 // function saveSession(stringSession, userAttrib) {

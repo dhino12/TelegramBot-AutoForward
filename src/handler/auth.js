@@ -3,6 +3,8 @@ const { TelegramClient, Api } = require("telegram");
 const { StringSession, StoreSession } = require("telegram/sessions");
 const { bot } = require("../../server");
 const { SaveStorage } = require("../utils/saveStorage");
+const validator = require('validator')
+const locales = require('../data/locale.json')
 let client = undefined
 // const api = require("./API");
 // const input = require("input"); // npm i input
@@ -62,10 +64,14 @@ async function connectAsUser(idFromUser) {
   return { client }
 }
 
-async function sendCode(phoneNumber) {
-  if (phoneNumber == null || phoneNumber == undefined) {
+async function sendCode(phoneNumber, locale) {
+  const localeCountry = locales.filter((localeVal) => localeVal.startsWith(locale + "-"))[0]
+  if (validator.default.isEmpty(phoneNumber) || !validator.default.isMobilePhone(`${phoneNumber.trim()}`, localeCountry)) {
     console.log("PhoneNumber has ", phoneNumber);
-    return;
+    throw {
+      code: 404,
+      message: "Ooops PhoneNumber is notValid, please follow /connect <phoneNumber>"
+    };
   }
 
   const resultCodeHash = await client.sendCode(
@@ -97,7 +103,7 @@ async function signIn({phoneNumber, phoneCodeHash, code}) {
       new Api.auth.SignIn({
         phoneNumber,
         phoneCodeHash,
-        phoneCode: code,
+        phoneCode: code.toString('utf-8'),
       })
     );
     return true

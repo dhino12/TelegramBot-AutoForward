@@ -11,6 +11,7 @@ bot.command("start", async (context) => {
   inlineKeyboard.text("Koneksi Pertama", "firstconnection");
   inlineKeyboard.text("Dokumentasi / Bantuan", "documentation");
   console.log(context.chat.id);
+  
   try {
     await bot.api.sendMessage(
       context.chat.id,
@@ -65,6 +66,11 @@ bot.command("connect", async (context) => {
   await context.conversation.enter("login");
 });
 
+bot.command("logout", async (context) => {
+  context.reply('Mohon tunggu nomer sedang di proses')
+  await context.conversation.enter("logout");
+});
+
 bot.command("getchanel", async (context) => {
   const filePath = SaveStorage.checkSessionExist('session');
   const sessionData = SaveStorage.loadSession(filePath);
@@ -106,7 +112,7 @@ bot.command('getgroup', async (context) => {
   🚫 Please wait a moment, this may take a few minutes. In the meantime, don't send too many similar requests. 🚫
   Group Title —» ID 
   ${searchGroup.map(item => `${item.title} => ${item.id}\n`)}
-  `)  
+  `)
 })
 
 bot.command("forward", async (context) => {
@@ -162,7 +168,6 @@ bot.on('msg', async (ctx) => {
         console.log(ctx.from);
         break
       case 'private':
-
         break
       default:
         break;
