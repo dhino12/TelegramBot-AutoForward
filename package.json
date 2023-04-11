@@ -14,8 +14,7 @@
     "@grammyjs/conversations": "^1.1.1",
     "dotenv": "^16.0.3",
     "grammy": "^1.15.3",
-    "input": "^1.0.1",
-    "language-tags": "^1.0.8",
+    "markdown-it": "^13.0.1",
     "telegram": "^2.15.10",
     "validator": "^13.9.0"
   }

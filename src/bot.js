@@ -4,6 +4,7 @@ const { SaveStorage } = require("./utils/saveStorage");
 const validator = require("validator");
 const { resultSplitId, saveToStorage, checkWorker, loadWorkers } = require("./handler/forwardWorker");
 const { connectAsUser } = require("./handler/auth");
+const { getgroupDB } = require("./handler/dialogs");
 require("./middlewares");
 
 bot.command("start", async (context) => {
@@ -16,20 +17,20 @@ bot.command("start", async (context) => {
     await bot.api.sendMessage(
       context.chat.id,
       `
-            Halo Selamat Datang, ${
-              context.chat.first_name || context.chat.username
-            } 👋.\nini adalah bot forward yang akan membantu kamu untuk meneruskan pesan ke lebih dari 1 chat group / channel, \ngunakan perintah /menu untuk melihat menu
+        [\\google \\- indonesia](www.google.com)\\
         `,
       {
         reply_markup: inlineKeyboard,
+        parse_mode: "Markdown"
       }
     );
-
     console.log(context.from);
   } catch (error) {
     console.error("start error");
     console.error(error);
   }
+
+  
 });
 
 bot.command("menu", async (context) => {
@@ -62,57 +63,23 @@ bot.command("menu", async (context) => {
 });
 
 bot.command("connect", async (context) => {
-  context.reply('Mohon tunggu nomer sedang di proses')
+  await context.reply('Mohon tunggu nomer sedang di proses')
   await context.conversation.enter("login");
 });
 
 bot.command("logout", async (context) => {
-  context.reply('Mohon tunggu nomer sedang di proses')
+  await context.reply('Mohon tunggu nomer sedang di proses')
   await context.conversation.enter("logout");
 });
 
 bot.command("getchanel", async (context) => {
-  const filePath = SaveStorage.checkSessionExist('session');
-  const sessionData = SaveStorage.loadSession(filePath);
-  const searchSessionCurrent = sessionData.filter(
-    ({ id }) => id == context.from.id
-  )[0];
-  const searchChannel = searchSessionCurrent.dialogs.filter(
-    ({ isChannel }) => isChannel == true
-  );
-  console.log(searchChannel);
-  if (searchSessionCurrent == undefined)
-    return context.reply(`
-            Sepertinya anda belum login ${context.from.first_name},
-            gunakan /connect untuk login
-        `);
-  return await context.reply(`
-  🚫 Please wait a moment, this may take a few minutes. In the meantime, don't send too many similar requests. 🚫
-Chanel Title —» ID
-${searchChannel.map(item => `${item.title} => ${item.id}\n`)}
-  `)
+  await context.reply('🚫 Please wait a moment, don\'t send anything')
+  await context.conversation.enter('getchannel')
 });
 
 bot.command('getgroup', async (context) => {
-  const filePath = SaveStorage.checkSessionExist('session');
-  const sessionData = SaveStorage.loadSession(filePath)
-  const searchSessionCurrent = sessionData.filter(
-    ({id}) => id == context.from.id
-  )[0]
-  const searchGroup = searchSessionCurrent.dialogs.filter(
-    ({isGroup}) => isGroup == true
-  )
-  if (searchSessionCurrent == undefined)
-    return context.reply(`
-            Sepertinya anda belum login ${context.from.first_name},
-            gunakan /connect untuk login
-        `);
-  console.log(searchGroup);
-  return await context.reply(`
-  🚫 Please wait a moment, this may take a few minutes. In the meantime, don't send too many similar requests. 🚫
-  Group Title —» ID 
-  ${searchGroup.map(item => `${item.title} => ${item.id}\n`)}
-  `)
+  await context.reply('🚫 Please wait a moment, don\'t send anything')
+  await context.conversation.enter("getgroup");
 })
 
 bot.command("forward", async (context) => {
@@ -147,7 +114,7 @@ bot.command("forward", async (context) => {
 });
 
 bot.on('msg', async (ctx) => {
-  console.log(ctx.chat);
+  // console.log(ctx.chat);
   try {
     switch (ctx.chat.type) {
       case 'channel':
@@ -163,15 +130,17 @@ bot.on('msg', async (ctx) => {
             ctx.forwardMessage(to , from)
           }
         }
-        break
+        break;
       case 'group': 
-        console.log(ctx.from);
-        break
+        // console.log(ctx.from);
+        break;
       case 'private':
-        break
+        break;
       default:
         break;
     }
+    // console.log(await ctx.exportChatInviteLink());
+
   } catch (error) {
     
   }

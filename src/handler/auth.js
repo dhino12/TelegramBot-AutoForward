@@ -46,6 +46,12 @@ async function connectAsUser(idFromUser) {
   const filePath = SaveStorage.checkSessionExist('session');
   const result = SaveStorage.loadSession(filePath);
   const IdDetected = result.filter(({ id }) => id == idFromUser)[0];
+  if (IdDetected == undefined) {
+    throw {
+      code: 404,
+      message: 'Session is empty, please registerd \n /connect <phone_number>'
+    }
+  }
 
   if (IdDetected) {
     session = IdDetected.session;
@@ -61,7 +67,7 @@ async function connectAsUser(idFromUser) {
     }
   );
   
-  return { client }
+  return client
 }
 
 async function sendCode(phoneNumber, locale) {

@@ -55,6 +55,27 @@ class SaveStorage {
         return false
     }
 
+    static updateDialogs(id, fileName, dialogs) {
+        return new Promise((resolve, reject) => {
+            const filePath = this.checkSessionExist(fileName)
+            let sessionsData = this.loadSession(filePath)
+            let sessionTmp = sessionsData.find((session) => session.id == id)
+            sessionsData = sessionsData.filter((session) => session.id != id)
+
+            if (sessionTmp == undefined) return reject({
+                code: 404,
+                message: `Session with id:${id} notfound`
+            })
+            sessionTmp.dialogs.push(...dialogs)
+
+            sessionsData.push(sessionTmp)
+
+            fs.writeFileSync(filePath, JSON.stringify(sessionsData))
+            console.log('Sessions Updated');
+            resolve({status: '200', message: 'Sessions Updated'})
+        })
+    }
+
     static rm(id, fileName) {
         const checkFileExist = this.checkSessionExist(fileName)
         const sessions = this.loadSession(checkFileExist)
