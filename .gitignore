@@ -71,6 +71,9 @@ typings/
 # Session
 src/data/Session.json
 
+# Worker
+src/data/forwardWorker.json
+
 # dotenv environment variables file
 .env
 .env.test

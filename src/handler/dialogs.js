@@ -14,11 +14,12 @@ function getchanelDB(idFromUser) {
     const searchGroup = searchSessionCurrent.dialogs.filter(
         ({isChannel}) => isChannel  == true
     )
-  
-    return `
-    🚫 Please wait a moment, this may take a few minutes. In the meantime, don't send too many similar requests. 🚫
-    Channel Title —» ID 
-    ${searchGroup.map(item => `${item.title} => ${item.id}\n`)}`
+    console.log(searchGroup);
+    if (searchGroup.length == 0) {
+        return ""
+    }
+    
+    return searchGroup.map(item => `\n[${item.title}](https://t.me/c/${item.folderId}/999999999) => ${item.id}`)
 }
 
 function getgroupDB(idFromUser) {
@@ -38,11 +39,8 @@ function getgroupDB(idFromUser) {
     if (searchGroup.length == 0) {
         return ""
     }
-    const datas = searchGroup.map(item => ` [${item.title}](https://t.me/c/${item.folderId}) => ${item.id}\n`)
-    return `
-    🚫 Please wait a moment, this may take a few minutes. In the meantime, don't send too many similar requests. 🚫
-    Group Title —» ID 
-    ${datas.toString().replaceAll(",", "")}`
+    
+    return searchGroup.map(item => `\n[${item.title}](https://t.me/c/${item.folderId}/999999999) => ${item.id}`)
 }
 
 module.exports = { getchanelDB, getgroupDB }

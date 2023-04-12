@@ -7,6 +7,7 @@ const { StringSession } = require("telegram/sessions")
 const { getchanelDB, getgroupDB } = require("./handler/dialogs")
 const { strTo32bit, convertToMarkdownV2, escapeMarkdownV2 } = require("./utils/converter")
 const MarkdownIt = require("markdown-it")
+const text = require('../src/data/textHelp.json')
 let phoneCode = 0
 let client = new TelegramClient(new StringSession(''), parseInt(process.env.APPID), process.env.APPHASH, {
     connectionRetries: 5,
@@ -118,7 +119,11 @@ async function getgroup(conversation, context) {
         if (groupFromDB != "" && context.match != 'update') {
             // check in db
             await client.disconnect()
-            return await context.reply(groupFromDB, {parse_mode: "Markdown"})
+            return await context.reply(
+                text.textGetGroup + groupFromDB.toString().replaceAll(",", ""), 
+                {
+                    parse_mode: "Markdown"
+                })
         }
         
         // create newDialogs in session.js
@@ -128,20 +133,20 @@ async function getgroup(conversation, context) {
             if (!dialog.isChannel && dialog.isGroup == true) {
                 groups.push({
                     id: dialog.id,
-                    folderId: dialog.folderId,
+                    folderId: Math.abs(dialog.id),
                     title: dialog.title,
                     isGroup: dialog.isGroup,
                     isChannel: dialog.isChannel
                 })
-                return `[${dialog.title}](https://t.me/c/${dialog.folderId}) => ${dialog.id}\n`
+                
+                return `[${dialog.title}](https://t.me/c/${Math.abs(dialog.id)}/999999999) => ${dialog.id}\n`
             }
         });
 
         // save to storage
-        await SaveStorage.updateDialogs(context.from.id, 'session', groups);
-        await context.reply(`
-            🚫 Please wait a moment, this may take a few minutes. In the meantime, don't send too many similar requests. 🚫\n
-            Group Title —» ID \n` + dialogs.toString().replaceAll(',', ''), 
+        // await SaveStorage.updateDialogs(context.from.id, 'session', groups);
+        await context.reply(
+            text.textGetGroup + dialogs.toString().replaceAll(',', ''), 
             {parse_mode: "Markdown"}
         );
     } catch (error) {
@@ -164,7 +169,10 @@ async function getchannel(conversation, context) {
         if (channelDB != "") {
             // check in db
             await client.disconnect()
-            return await context.reply(channelDB, {parse_mode: "Markdown"})
+            console.log('if channelDB');
+            return await context.reply(
+                text.textGetChannel + channelDB.toString().replaceAll(',', ''), 
+                {parse_mode: "Markdown"})
         }
         
         // create newDialogs in session.js
@@ -174,20 +182,20 @@ async function getchannel(conversation, context) {
             if (dialog.isChannel) {
                 channels.push({
                     id: dialog.id,
+                    folderId: Math.abs(dialog.id),
                     title: dialog.title,
                     isGroup: dialog.isGroup,
                     isChannel: dialog.isChannel
                 })
-                return `[${dialog.title}](https://t.me/c/${dialog.folderId}) => ${dialog.id}`
+                return `[${dialog.title}](https://t.me/c/${Math.abs(dialog.id)}/999999999) => ${dialog.id}`
             }
         })
 
         // save to storage
         await SaveStorage.updateDialogs(context.from.id, 'session', channels);
-        await context.reply(`
-        🚫 Please wait a moment, this may take a few minutes. In the meantime, don't send too many similar requests. 🚫 \n
-        Channel Title —» ID \n
-        ` + dialogs.toString().replaceAll(',', ''));
+        await context.reply(
+            text.textGetChannel + dialogs.toString().replaceAll(',', ''),
+            {parse_mode: "Markdown"});
     } catch (error) {
         if (error.code) {
             context.reply(error.message)
