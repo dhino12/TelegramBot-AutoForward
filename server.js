@@ -3,6 +3,7 @@ require('dotenv').config()
 const { conversations } = require('@grammyjs/conversations')
 const { chatMembers } = require('@grammyjs/chat-members')
 const { session, MemorySessionStorage } = require('grammy')
+const {Router} = require('@grammyjs/router')
 
 // const { StringSession } = require('telegram/sessions')
 // const { TelegramClient } = require('telegram')
@@ -15,7 +16,7 @@ require('./src/bot')
 // });
 const bot = new grammy.Bot(process.env.TOKEN)
 const adapter = new MemorySessionStorage()
-
+  
 bot.use(session({
     type: "multi",
     custom: {

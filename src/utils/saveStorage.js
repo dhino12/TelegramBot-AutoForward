@@ -66,7 +66,17 @@ class SaveStorage {
                 code: 404,
                 message: `Session with id:${id} notfound`
             })
-            sessionTmp.dialogs.push(...dialogs)
+            
+            const dialogsDb = sessionTmp.dialogs.filter((dialog, index) => {
+                if (dialogs.length - 1 >= index) {
+                    
+                    return dialog.id != dialogs[index].id
+                }
+            })
+            // console.log(dialogsDb);
+            dialogsDb.push(...dialogs)
+            sessionTmp.dialogs = []
+            sessionTmp.dialogs.push(...dialogsDb)
 
             sessionsData.push(sessionTmp)
 
@@ -88,17 +98,4 @@ class SaveStorage {
         return true
     }
 }
-
-// function saveSession(stringSession, userAttrib) {
-    
-//     const dirPath = path.resolve(__dirname, '../data');
-
-//     if (!fs.existsSync(dirPath)) {
-//         console.log('File Doesn\'t exist in src/data/session.json');
-//         console.log(`Create file in ${dirPath}`);
-//         fs.mkdirSync(dirPath)
-//         fs.writeFileSync(`${dirPath}/session.json`, "[]", 'utf-8')
-//     }
-// }
-
 module.exports = { SaveStorage }

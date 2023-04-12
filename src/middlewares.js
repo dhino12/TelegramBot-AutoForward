@@ -31,14 +31,12 @@ async function askPhoneCode(conversation, context) {
 
 async function login (conversation, context) {
     try {
-        
         const filePath = SaveStorage.checkSessionExist('session');
         const result = SaveStorage.loadSession(filePath);
         const IdDetected = result.filter(({ id }) => id == context.from.id)[0];
         if (IdDetected != undefined) {
             await client.disconnect()
-            console.log('masuk if');
-            client = await connectAsUser(context.from.id)      
+            client = await connectAsUser(context.from.id)
         }
         console.log("Loading interactive example...");
         await client.connect()
@@ -144,7 +142,7 @@ async function getgroup(conversation, context) {
         });
 
         // save to storage
-        // await SaveStorage.updateDialogs(context.from.id, 'session', groups);
+        await SaveStorage.updateDialogs(context.from.id, 'session', groups);
         await context.reply(
             text.textGetGroup + dialogs.toString().replaceAll(',', ''), 
             {parse_mode: "Markdown"}

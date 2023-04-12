@@ -77,40 +77,63 @@ bot.command("getchanel", async (context) => {
   await context.conversation.enter('getchannel')
 });
 
+bot.command("getuser", async (context) => {
+  await context.reply('🚫 Please wait a moment, don\'t send anything')
+  await context.conversation.enter('getuser')
+})
+
 bot.command('getgroup', async (context) => {
   await context.reply('🚫 Please wait a moment, don\'t send anything')
   await context.conversation.enter("getgroup");
 })
 
 bot.command("forward", async (context) => {
-  const argCommand = context.match.toLowerCase();
+  if (context.chat.type != 'private')
+    return await context.reply(
+      textHelp.pleasePrivateChat + ` [${context.me.username}](tg://user?id=${context.me.id})`, 
+      {
+        parse_mode: 'Markdown'
+      }
+    )
+  const argCommand = context.match.toLowerCase().replace(/\s+/g, ' ').trim();
   const argAction = argCommand.split(" ")[0]; // ACTION
   const argLabel = argCommand.split(" ")[1]; // LABEL / WORKER
   
-  if (argCommand == "") {
-    return await context.reply(textHelp.forward);
+  try {
+    if (argCommand == "") {
+      return await context.reply(textHelp.forward);
+    }
+
+    if (!argAction.includes("add")) 
+      return await context.reply(textHelp.addNotInclude);
+
+    if (validator.default.isNumeric(argLabel))
+      return await context.reply(textHelp.forwardLabelNotInclude);
+
+    if (checkWorker(argLabel, context.from.id)) {
+      return await context.reply('Worker sudah tersedia')
+    }
+
+    const { from, to } = resultSplitId(argAction, argLabel, argCommand);
+    console.log(from,to);
+    const result = saveToStorage({
+      from, to, 
+      id: context.from.id, name: context.from.first_name,
+      worker: argLabel.toString()
+    })
+
+    if (result) return context.reply(`Worker Berhasil di simpan`)
+    else return context.reply(`Mohon maaf terjadi kesalahan, pastikan sesuai dengan format`)
+  } catch (error) {
+    console.log(error);
   }
+});
 
-  if (!argAction.includes("add")) 
-     return await context.reply(textHelp.addNotInclude);
-
-  if (validator.default.isNumeric(argLabel))
-    return await context.reply(textHelp.forwardLabelNotInclude);
-
-  if (checkWorker(argLabel, context.from.id)) {
-    return await context.reply('Worker sudah tersedia')
+bot.hears("/hi", async (ctx) => {
+  try {
+    await ctx.reply("Hello 👋");
+  } catch (error) {
   }
-
-  const { from, to } = resultSplitId(argAction, argLabel, argCommand);
-  console.log(from,to);
-  const result = saveToStorage({
-    from, to, 
-    id: context.from.id, name: context.from.first_name,
-    worker: argLabel.toString()
-  })
-
-  if (result) return context.reply(`Worker Berhasil di simpan`)
-  else return context.reply(`Mohon maaf terjadi kesalahan, pastikan sesuai dengan format`)
 });
 
 bot.on('msg', async (ctx) => {
@@ -122,7 +145,6 @@ bot.on('msg', async (ctx) => {
         break;
       case 'supergroup':
         const resultWorker = loadWorkers(ctx.from.id)[0]
-        console.log(resultWorker);
         if (resultWorker == undefined) return;
 
         for (const from of resultWorker.from) {
@@ -145,12 +167,3 @@ bot.on('msg', async (ctx) => {
     
   }
 })
-
-bot.hears("/hi", async (ctx) => {
-  try {
-    console.log(ctx.message);
-    await ctx.reply("Hello 👋");
-
-  } catch (error) {
-  }
-});
