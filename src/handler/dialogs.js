@@ -43,4 +43,25 @@ function getgroupDB(idFromUser) {
     return searchGroup.map(item => `\n[${item.title}](https://t.me/c/${item.folderId}/999999999) => ${item.id}`)
 }
 
-module.exports = { getchanelDB, getgroupDB }
+function getUserDB(idFromUser) {
+    const filePath = SaveStorage.checkSessionExist('session');
+    const sessionData = SaveStorage.loadSession(filePath)
+    const searchSessionCurrent = sessionData.filter(
+        ({id}) => id == idFromUser
+      )[0]
+    if (searchSessionCurrent == undefined)
+        throw {
+            code: 404,
+            message: 'Sepertinya anda belum login, gunakan /connect untuk login'
+        }
+    const searchPrivateChat = searchSessionCurrent.dialogs.filter(
+        ({isGroup, isChannel}) => isGroup == false && isChannel == false
+    )
+    if (searchPrivateChat.length == 0) {
+        return ""
+    }
+    
+    return searchPrivateChat.map(item => `\n[${item.title}](https://t.me/c/${item.folderId}/999999999) => ${item.id}`)
+}
+
+module.exports = { getchanelDB, getgroupDB, getUserDB }

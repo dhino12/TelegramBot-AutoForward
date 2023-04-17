@@ -5,7 +5,6 @@ const { bot } = require("../../server");
 const { SaveStorage } = require("../utils/saveStorage");
 const validator = require('validator')
 const locales = require('../data/locale.json')
-let client = undefined
 // const api = require("./API");
 // const input = require("input"); // npm i input
 // const { StringSession } = require("telegram/sessions");
@@ -58,7 +57,7 @@ async function connectAsUser(idFromUser) {
   }
   console.log("idDetec: " + session);
 
-  client = new TelegramClient(
+  const client = new TelegramClient(
     new StringSession(session),
     parseInt(process.env.APPID),
     process.env.APPHASH,
@@ -70,61 +69,65 @@ async function connectAsUser(idFromUser) {
   return client
 }
 
-async function sendCode(phoneNumber, locale) {
-  const localeCountry = locales.filter((localeVal) => localeVal.startsWith(locale + "-"))[0]
-  if (validator.default.isEmpty(phoneNumber) || !validator.default.isMobilePhone(`${phoneNumber.trim()}`, localeCountry)) {
-    console.log("PhoneNumber has ", phoneNumber);
-    throw {
-      code: 404,
-      message: "Ooops PhoneNumber is notValid, please follow /connect <phoneNumber>"
-    };
-  }
+async function forwardChat(to, from) {
+  // bot.api.forwardMessage(to, from, )
+}
 
-  const resultCodeHash = await client.sendCode(
-    {
-      apiHash: process.env.APPHASH,
-      apiId: parseInt(process.env.APPID),
-    },
-    phoneNumber
-  );
+// async function sendCode(phoneNumber, locale) {
+//   const localeCountry = locales.filter((localeVal) => localeVal.startsWith(locale + "-"))[0]
+//   if (validator.default.isEmpty(phoneNumber) || !validator.default.isMobilePhone(`${phoneNumber.trim()}`, localeCountry)) {
+//     console.log("PhoneNumber has ", phoneNumber);
+//     throw {
+//       code: 404,
+//       message: "Ooops PhoneNumber is notValid, please follow /connect <phoneNumber>"
+//     };
+//   }
+
+//   const resultCodeHash = await client.sendCode(
+//     {
+//       apiHash: process.env.APPHASH,
+//       apiId: parseInt(process.env.APPID),
+//     },
+//     phoneNumber
+//   );
  
-  return resultCodeHash;
-}
+//   return resultCodeHash;
+// }
 
-async function signIn({phoneNumber, phoneCodeHash, code}) {
-  /** contents of the codeAuth are
-   * {
-   *  phoneCodeHash,
-   *  yourCodeFromTelegram,
-   *  phoneNumber
-   * }
-   */
-  try {
-    if (code == null || code == undefined) {
-      console.log("codeAuth has ", code);
-      return;
-    }
-    console.log(code);
-    await client.invoke(
-      new Api.auth.SignIn({
-        phoneNumber,
-        phoneCodeHash,
-        phoneCode: code.toString('utf-8'),
-      })
-    );
-    return true
-  } catch (error) {
-    console.error(error);
-    return false
-  }
-}
+// async function signIn({phoneNumber, phoneCodeHash, code}) {
+//   /** contents of the codeAuth are
+//    * {
+//    *  phoneCodeHash,
+//    *  yourCodeFromTelegram,
+//    *  phoneNumber
+//    * }
+//    */
+//   try {
+//     if (code == null || code == undefined) {
+//       console.log("codeAuth has ", code);
+//       return;
+//     }
+//     console.log(code);
+//     await client.invoke(
+//       new Api.auth.SignIn({
+//         phoneNumber,
+//         phoneCodeHash,
+//         phoneCode: code.toString('utf-8'),
+//       })
+//     );
+//     return true
+//   } catch (error) {
+//     console.error(error);
+//     return false
+//   }
+// }
 
-async function disconnect() {
-    client.disconnect()
-}
+// async function disconnect() {
+//     client.disconnect()
+// }
 
 async function saveSession(userInfo, fileName) {
     return SaveStorage.set(userInfo, fileName);
 }
 
-module.exports = { connectAsUser, saveSession, sendCode, signIn, disconnect };
+module.exports = { connectAsUser, saveSession };

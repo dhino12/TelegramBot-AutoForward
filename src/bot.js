@@ -17,20 +17,20 @@ bot.command("start", async (context) => {
     await bot.api.sendMessage(
       context.chat.id,
       `
-        [\\google \\- indonesia](www.google.com)\\
+            Halo Selamat Datang, ${
+              context.chat.first_name || context.chat.username
+            } 👋.\nini adalah bot forward yang akan membantu kamu untuk meneruskan pesan ke lebih dari 1 chat group / channel, \ngunakan perintah /menu untuk melihat menu
         `,
       {
         reply_markup: inlineKeyboard,
-        parse_mode: "Markdown"
       }
     );
+
     console.log(context.from);
   } catch (error) {
     console.error("start error");
     console.error(error);
   }
-
-  
 });
 
 bot.command("menu", async (context) => {
@@ -146,17 +146,18 @@ bot.on('msg', async (ctx) => {
       case 'supergroup':
         const resultWorker = loadWorkers(ctx.from.id)[0]
         if (resultWorker == undefined) return;
-
+        
         for (const from of resultWorker.from) {
           for (const to of resultWorker.to) {
-            ctx.forwardMessage(to , from)
+            await ctx.forwardMessage(to , from)
+            
           }
         }
         break;
-      case 'group': 
-        // console.log(ctx.from);
+      case 'group':
         break;
       case 'private':
+        console.log(ctx.message.text);
         break;
       default:
         break;

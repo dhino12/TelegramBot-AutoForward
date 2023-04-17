@@ -4,10 +4,11 @@ const { SaveStorage } = require("./utils/saveStorage")
 const { connectAsUser, sendCode, signIn } = require("./handler/auth")
 const { TelegramClient, Api } = require("telegram")
 const { StringSession } = require("telegram/sessions")
-const { getchanelDB, getgroupDB } = require("./handler/dialogs")
-const { strTo32bit, convertToMarkdownV2, escapeMarkdownV2 } = require("./utils/converter")
-const MarkdownIt = require("markdown-it")
+const { getchanelDB, getgroupDB, getUserDB } = require("./handler/dialogs")
 const text = require('../src/data/textHelp.json')
+const { NewMessage } = require("telegram/events")
+const { sendMessageHandler } = require("./handler/messageHandler")
+const { loadWorkers } = require("./handler/forwardWorker")
 let phoneCode = 0
 let client = new TelegramClient(new StringSession(''), parseInt(process.env.APPID), process.env.APPHASH, {
     connectionRetries: 5,
@@ -43,7 +44,9 @@ async function login (conversation, context) {
         
         if (await client.isUserAuthorized()) {
             await context.reply('Anda Sudah Login 👌')
-            return await client.disconnect()
+            await observeClientChat(context)
+            // return await client.disconnect()
+            return
         }
 
         const phoneNumber = context.match
@@ -164,7 +167,7 @@ async function getchannel(conversation, context) {
         await client.connect();
 
         const channelDB = getchanelDB(context.from.id)
-        if (channelDB != "") {
+        if (channelDB != "" && context.match != 'update') {
             // check in db
             await client.disconnect()
             console.log('if channelDB');
@@ -204,11 +207,102 @@ async function getchannel(conversation, context) {
     return
 }
 
+async function getuser(conversation, context) {
+    try {
+        await client.disconnect();
+        client = await connectAsUser(context.from.id);
+        await client.connect();
+
+        const userDB = getUserDB(context.from.id)
+        if (userDB != "" && context.match != 'update') {
+            // check in db
+            // await client.disconnect()
+            console.log('if userDB');
+            return await context.reply(
+                text.textGetChannel + userDB.toString().replaceAll(',', ''), 
+                {parse_mode: "Markdown"})
+        }
+        
+        // create newDialogs in session.js
+        const users = []
+        let dialogs = await client.getDialogs();
+        dialogs = dialogs.map(dialog => {
+            if (dialog.isChannel == false && dialog.isGroup == false) {
+                users.push({
+                    id: dialog.id,
+                    folderId: Math.abs(dialog.id),
+                    title: dialog.title,
+                    isGroup: dialog.isGroup,
+                    isChannel: dialog.isChannel
+                })
+                return `[${dialog.title}](https://t.me/c/${Math.abs(dialog.id)}/999999999) => ${dialog.id}\n`
+            }
+        })
+
+        // save to storage
+        await SaveStorage.updateDialogs(context.from.id, 'session', users);
+        await context.reply(
+            text.textGetChannel + dialogs.toString().replaceAll(',', ''),
+            {parse_mode: "Markdown"});
+    } catch (error) {
+        if (error.code) {
+            context.reply(error.message)
+        }
+        console.error(error);
+    }
+    // await client.disconnect()
+    return
+}
+
+async function observeClientChat(context){
+    try {
+
+    //  await client.disconnect()
+    //  await client.connect()
+    //  client = await connectAsUser(context.from.id)
+    //  if (!await client.isUserAuthorized()) {
+    //      await context.reply('Anda Sudah Login 👌')
+    //     //  sendMessageHandler()
+    //      // return await client.disconnect()
+    //  }
+        console.log('jalan');
+        const resultWorker = loadWorkers(context.from.id)[0]
+        if (resultWorker == undefined) return;
+
+        for (const from of resultWorker.from) {
+            for (const to of resultWorker.to) {
+                //   await ctx.forwardMessage(to , from)
+                await client.addEventHandler(async (event) => {
+                    const message = event.message
+                    
+                    if (event.isPrivate) {
+                        const getMev2 = await client.getEntity(message.senderId)
+                        console.log(message.senderId);
+                        console.log(message.message);
+                        console.log(message.fromId);
+                        console.log(message.id);
+                        console.log(message.sender);
+                        console.log(getMev2);
+                        
+                        await bot.api.sendMessage(to, `
+                        From: ${getMev2.firstName}\n-----\n${message.message}`)
+                        // await context.forwardMessage(2026146290 , Number(message.senderId))
+                        //  await bot.api.forwardMessage(2026146290, message.senderId, message.chatId)
+                    }
+                }, new NewMessage({fromUsers: from}))
+            }
+        }
+    } catch (error) {
+     
+    } 
+}
+
 bot.use(createConversation(login))
 bot.use(createConversation(logout))
+bot.use(createConversation(getuser))
 bot.use(createConversation(getgroup))
 bot.use(createConversation(getchannel))
 
 module.exports = {
-    login, logout, getgroup, getchannel
+    login, logout, getgroup, getchannel, getuser, observeClientChat
 }
