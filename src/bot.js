@@ -10,9 +10,18 @@ require("./middlewares");
 bot.command("start", async (context) => {
   const inlineKeyboard = new grammy.InlineKeyboard();
   inlineKeyboard.text("🔂 Koneksi Pertama", "firstconnection").row();
-  inlineKeyboard.switchInline("📄 Dokumentasi / Bantuan", "documentation").row();
-  console.log(context.chat.id);
+  inlineKeyboard.url("📄 Dokumentasi / Bantuan", "https://github.com/dhino12/TelegramBot-AutoForward").row();
   
+  await bot.api.setMyCommands([
+    { command: "start", description: "Mulai bot ini" },
+    { command: "connect", description: "setup account" },
+    { command: "forward", description: "setup auto forward" },
+    { command: "getuser", description: "Get User ID" },
+    { command: "getgroup", description: "Get Group ID" },
+    { command: "getchanel", description: "Get Channel ID" },
+    
+  ]);
+
   try {
     await bot.api.sendMessage(
       context.chat.id,
@@ -25,6 +34,7 @@ bot.command("start", async (context) => {
         reply_markup: inlineKeyboard,
       }
     );
+    // await context.reply("Check out this menu:", { reply_markup: menu });
 
     console.log(context.from);
   } catch (error) {
@@ -95,6 +105,7 @@ bot.command("forward", async (context) => {
         parse_mode: 'Markdown'
       }
     )
+
   const argCommand = context.match.toLowerCase().replace(/\s+/g, ' ').trim();
   const argAction = argCommand.split(" ")[0]; // ACTION
   const argLabel = argCommand.split(" ")[1]; // LABEL / WORKER
