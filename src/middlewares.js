@@ -7,7 +7,8 @@ const { StringSession } = require("telegram/sessions")
 const { getchanelDB, getgroupDB, getUserDB } = require("./handler/dialogs")
 const text = require('../src/data/textHelp.json')
 const { NewMessage } = require("telegram/events")
-const { sendMessageHandler } = require("./handler/messageHandler")
+const validator = require('validator')
+const locales = require('./data/locale.json')
 const { loadWorkers } = require("./handler/forwardWorker")
 let phoneCode = 0
 let client = new TelegramClient(new StringSession(''), parseInt(process.env.APPID), process.env.APPHASH, {
@@ -50,6 +51,13 @@ async function login (conversation, context) {
         }
 
         const phoneNumber = context.match
+        if (validator.default.isEmpty(phoneNumber) || !validator.default.isMobilePhone(`${phoneNumber.trim()}`)) {
+            console.log("PhoneNumber has ", phoneNumber);
+            throw {
+                code: 404,
+                message: "Ooops PhoneNumber is notValid,\nplease follow /connect <phoneNumber>"
+            };
+        }
         const auth = await client.sendCode({
             apiHash: process.env.APPHASH,
             apiId: parseInt(process.env.APPID)
