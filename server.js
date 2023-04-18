@@ -3,6 +3,8 @@ require('dotenv').config()
 const { conversations } = require('@grammyjs/conversations')
 const { chatMembers } = require('@grammyjs/chat-members')
 const { session, MemorySessionStorage } = require('grammy')
+const { I18n } = require("@grammyjs/i18n");
+const { Menu, MenuRange } = require("@grammyjs/menu");
 // const {Router} = require('@grammyjs/router')
 
 // const { StringSession } = require('telegram/sessions')
@@ -14,6 +16,11 @@ require('./src/bot')
 
 const bot = new grammy.Bot(process.env.TOKEN)
 const adapter = new MemorySessionStorage()
+// const i18n = new I18n({
+//     defaultLocale: "id", // Lihat di bawah untuk informasi lebih lanjut.
+//     directory: "./src/locales", // Muat semua file terjemahan dari locales/.
+// });
+
 // let client = undefined
 
 // (async function connectToClient() {
