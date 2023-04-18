@@ -36,7 +36,7 @@ bot.callbackQuery("firstconnection", (context) => {
 });
 
 bot.callbackQuery("documentation", (ctx) => {
-  ctx.reply(`Untuk melihat dokumentasi silahkan ke [dokumentasi](google.com)`);
+  ctx.reply(`Untuk melihat dokumentasi silahkan ke [dokumentasi](https://github.com/dhino12/TelegramBot-AutoForward)`);
 });
 
 async function connectAsUser(idFromUser) {
@@ -45,28 +45,31 @@ async function connectAsUser(idFromUser) {
   const filePath = SaveStorage.checkSessionExist('session');
   const result = SaveStorage.loadSession(filePath);
   const IdDetected = result.filter(({ id }) => id == idFromUser)[0];
-  if (IdDetected == undefined) {
-    throw {
-      code: 404,
-      message: 'Session is empty, please registerd \n /connect <phone_number>'
-    }
-  }
-
-  if (IdDetected) {
-    session = IdDetected.session;
-  }
   console.log("idDetec: " + session);
-
-  const client = new TelegramClient(
-    new StringSession(session),
-    parseInt(process.env.APPID),
-    process.env.APPHASH,
-    {
-      connectionRetries: 5,
-    }
-  );
   
-  return client
+  return new Promise((resolve, reject) => {
+    if (IdDetected == undefined) {
+      return reject({
+        code: 404,
+        message: 'Session is empty, please registerd \n /connect <phone_number>'
+      })
+    }
+  
+    if (IdDetected) {
+      session = IdDetected.session;
+    }
+
+    const client = new TelegramClient(
+      new StringSession(session),
+      parseInt(process.env.APPID),
+      process.env.APPHASH,
+      {
+        connectionRetries: 5,
+      }
+    );
+
+    return resolve(client)
+  })
 }
 
 async function forwardChat(to, from) {

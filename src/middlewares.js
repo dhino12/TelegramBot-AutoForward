@@ -36,7 +36,7 @@ async function login (conversation, context) {
         const result = SaveStorage.loadSession(filePath);
         const IdDetected = result.filter(({ id }) => id == context.from.id)[0];
         if (IdDetected != undefined) {
-            await client.disconnect()
+            // await client.disconnect()
             client = await connectAsUser(context.from.id)
         }
         console.log("Loading interactive example...");

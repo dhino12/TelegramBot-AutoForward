@@ -9,17 +9,17 @@ require("./middlewares");
 
 bot.command("start", async (context) => {
   const inlineKeyboard = new grammy.InlineKeyboard();
-  inlineKeyboard.text("Koneksi Pertama", "firstconnection");
-  inlineKeyboard.text("Dokumentasi / Bantuan", "documentation");
+  inlineKeyboard.text("🔂 Koneksi Pertama", "firstconnection").row();
+  inlineKeyboard.switchInline("📄 Dokumentasi / Bantuan", "documentation").row();
   console.log(context.chat.id);
   
   try {
     await bot.api.sendMessage(
       context.chat.id,
       `
-            Halo Selamat Datang, ${
+            Halo ${
               context.chat.first_name || context.chat.username
-            } 👋.\nini adalah bot forward yang akan membantu kamu untuk meneruskan pesan ke lebih dari 1 chat group / channel, \ngunakan perintah /menu untuk melihat menu
+            } 👋.\n${textHelp.started}
         `,
       {
         reply_markup: inlineKeyboard,
@@ -146,7 +146,7 @@ bot.on('msg', async (ctx) => {
       case 'supergroup':
         const resultWorker = loadWorkers(ctx.from.id)[0]
         if (resultWorker == undefined) return;
-        
+      
         for (const from of resultWorker.from) {
           for (const to of resultWorker.to) {
             await ctx.forwardMessage(to , from)

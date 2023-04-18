@@ -18,3 +18,6 @@ async function login (conversation, context) {
 ```
 
 Namun ketika TelegramClient dipisah hal tersebut meyebabkan invalid code, dikarenakan server berjalan ulang dan variable menjadi kosong
+
+## Penggunaan Worker
+https://medium.com/@Trott/using-worker-threads-in-node-js-80494136dbb6
