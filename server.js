@@ -12,7 +12,7 @@ const { Menu, MenuRange } = require("@grammyjs/menu");
 // const { connectAsUser } = require('./src/handler/auth')
 // const { SaveStorage } = require('./src/utils/saveStorage')
 
-require('./src/bot')
+require('./api/bot')
 
 const bot = new grammy.Bot(process.env.TOKEN)
 const adapter = new MemorySessionStorage()
