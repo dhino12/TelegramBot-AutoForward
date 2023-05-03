@@ -11,7 +11,7 @@ class SaveStorage {
         }
         
         if (!fs.existsSync(filePath)) {
-            console.log(`File Doesn\'t exist in api/data/${fileName}.json`);
+            console.log(`File Doesn\'t exist in src/data/${fileName}.json`);
             fs.writeFileSync(`${filePath}`, "[]", 'utf-8')
             // jika belum buat fileBaru dengan filePath
         }
