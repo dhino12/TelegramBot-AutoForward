@@ -264,7 +264,12 @@ async function getuser(conversation, context) {
 
 async function observeClientChat(context){
     try {
-
+        console.log(client.disconnected);
+        // if (client.disconnected) {
+        //     client = await connectAsUser(context.from.id)
+        //     await client.connect()
+        //     console.log('masuk if');
+        // }
     //  await client.disconnect()
     //  await client.connect()
     //  client = await connectAsUser(context.from.id)
@@ -279,8 +284,9 @@ async function observeClientChat(context){
 
         for (const from of resultWorker.from) {
             for (const to of resultWorker.to) {
+                console.log('masuk for dalam');
                 //   await ctx.forwardMessage(to , from)
-                await client.addEventHandler(async (event) => {
+                client.addEventHandler(async (event) => {
                     const message = event.message
                     
                     if (event.isPrivate) {
