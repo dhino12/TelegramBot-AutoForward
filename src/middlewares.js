@@ -37,7 +37,7 @@ async function login (conversation, context) {
         const result = SaveStorage.loadSession(filePath);
         const IdDetected = result.filter(({ id }) => id == context.from.id)[0];
         if (IdDetected != undefined) {
-            // await client.disconnect()
+            await client.disconnect()
             client = await connectAsUser(context.from.id)
         }
         console.log("Loading interactive example...");
@@ -264,21 +264,6 @@ async function getuser(conversation, context) {
 
 async function observeClientChat(context){
     try {
-        console.log(client.disconnected);
-        // if (client.disconnected) {
-        //     client = await connectAsUser(context.from.id)
-        //     await client.connect()
-        //     console.log('masuk if');
-        // }
-    //  await client.disconnect()
-    //  await client.connect()
-    //  client = await connectAsUser(context.from.id)
-    //  if (!await client.isUserAuthorized()) {
-    //      await context.reply('Anda Sudah Login 👌')
-    //     //  sendMessageHandler()
-    //      // return await client.disconnect()
-    //  }
-        console.log('jalan');
         const resultWorker = loadWorkers(context.from.id)[0]
         if (resultWorker == undefined) return;
 

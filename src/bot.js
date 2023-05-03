@@ -1,11 +1,11 @@
 const { bot, grammy } = require("../server");
 const textHelp = require("./data/textHelp.json");
-const { SaveStorage } = require("./utils/saveStorage");
 const validator = require("validator");
 const { resultSplitId, saveToStorage, checkWorker, loadWorkers } = require("./handler/forwardWorker");
-const { connectAsUser } = require("./handler/auth");
-const { getgroupDB } = require("./handler/dialogs");
 require("./middlewares");
+require("./handler/auth");
+require("./handler/dialogs");
+require("./utils/saveStorage");
 
 bot.command("start", async (context) => {
   const inlineKeyboard = new grammy.InlineKeyboard();
@@ -19,7 +19,6 @@ bot.command("start", async (context) => {
     { command: "getuser", description: "Get User ID" },
     { command: "getgroup", description: "Get Group ID" },
     { command: "getchanel", description: "Get Channel ID" },
-    
   ]);
 
   try {
