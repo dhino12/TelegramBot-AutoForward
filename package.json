@@ -4,8 +4,9 @@
   "description": "AutoForward TelegramBot",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./src/bot.js"
+    "start": "node ./src/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -18,5 +19,8 @@
     "grammy": "^1.15.3",
     "telegram": "^2.15.10",
     "validator": "^13.9.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
   }
 }

@@ -1,60 +1,63 @@
 // const { TelegramClient } = require("telegram");
 const { TelegramClient, Api } = require("telegram");
 const { StringSession, StoreSession } = require("telegram/sessions");
-const { bot } = require("../../server");
+const { bot } = require("../core/bot/index.js");
 const { SaveStorage } = require("../utils/saveStorage");
-const validator = require('validator')
-const locales = require('../data/locale.json')
+const validator = require("validator");
+const locales = require("../data/locale.json");
 // const api = require("./API");
 // const input = require("input"); // npm i input
 // const { StringSession } = require("telegram/sessions");
 
-bot.callbackQuery("firstconnection", (context) => {
-  bot.api.sendMessage(
-    context.chat.id,
-    `
-    *\\Connect Help Menu*\\
+// bot.callbackQuery("firstconnection", (context) => {
+//   bot.api.sendMessage(
+//     context.chat.id,
+//     `
+//     *\\Connect Help Menu*\\
 
-    Use it to connect your account with Auto Forward Message Telegram Bot\\, You will need at least one connected account with Auto Forward Message Telegram Bot to use other commands
+//     Use it to connect your account with Auto Forward Message Telegram Bot\\, You will need at least one connected account with Auto Forward Message Telegram Bot to use other commands
     
-    Enter the phone number of the telegram account which is already a member of the desired source chats\\, along with country code
+//     Enter the phone number of the telegram account which is already a member of the desired source chats\\, along with country code
     
-    *\\Command Arguments*\\
-    \\/connect PHONE\\_NUMBER
+//     *\\Command Arguments*\\
+//     \\/connect PHONE\\_NUMBER
     
-    *\\For Example:*\\
-    \\/connect \\+84444444444
+//     *\\For Example:*\\
+//     \\/connect \\+84444444444
     
-    You can find every country prefix code by 
+//     You can find every country prefix code by 
     
-    Don't know how to start 🤔🤔🤔? 
-    👉`,
-    {
-      parse_mode: "MarkdownV2",
-    }
-  );
-});
+//     Don't know how to start 🤔🤔🤔? 
+//     👉`,
+//     {
+//       parse_mode: "MarkdownV2",
+//     }
+//   );
+// });
 
-bot.callbackQuery("documentation", (ctx) => {
-  ctx.reply(`Untuk melihat dokumentasi silahkan ke [dokumentasi](https://github.com/dhino12/TelegramBot-AutoForward)`);
-});
+// bot.callbackQuery("documentation", (ctx) => {
+//   ctx.reply(
+//     `Untuk melihat dokumentasi silahkan ke [dokumentasi](https://github.com/dhino12/TelegramBot-AutoForward)`
+//   );
+// });
 
 async function connectAsUser(idFromUser) {
   let session = "";
 
-  const filePath = SaveStorage.checkSessionExist('session');
+  const filePath = SaveStorage.checkSessionExist("session");
   const result = SaveStorage.loadSession(filePath);
   const IdDetected = result.filter(({ id }) => id == idFromUser)[0];
   console.log("idDetec: " + session);
-  
+
   return new Promise((resolve, reject) => {
     if (IdDetected == undefined) {
       return reject({
         code: 404,
-        message: 'Session is empty, please registerd \n /connect <phone_number>'
-      })
+        message:
+          "Session is empty, please registerd \n /connect <phone_number>",
+      });
     }
-  
+
     if (IdDetected) {
       session = IdDetected.session;
     }
@@ -68,8 +71,8 @@ async function connectAsUser(idFromUser) {
       }
     );
 
-    return resolve(client)
-  })
+    return resolve(client);
+  });
 }
 
 async function forwardChat(to, from) {
@@ -93,7 +96,7 @@ async function forwardChat(to, from) {
 //     },
 //     phoneNumber
 //   );
- 
+
 //   return resultCodeHash;
 // }
 
@@ -130,7 +133,7 @@ async function forwardChat(to, from) {
 // }
 
 async function saveSession(userInfo, fileName) {
-    return SaveStorage.set(userInfo, fileName);
+  return SaveStorage.set(userInfo, fileName);
 }
 
 module.exports = { connectAsUser, saveSession };

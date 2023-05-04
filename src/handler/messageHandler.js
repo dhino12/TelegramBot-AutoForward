@@ -1,4 +1,4 @@
-const { bot } = require("../../server")
+// const { bot } = require("../../server")
 
 // const sendMessageHandler = async (chat_id, text, other) => {
 //     return  await bot.api.sendMessage(chat_id, text, other)
