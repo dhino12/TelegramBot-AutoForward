@@ -33,6 +33,4 @@ bot.api.setMyCommands([
   { command: "getchanel", description: "Get Channel ID" },
 ]);
 
-bot.start()
-
 module.exports = bot;
