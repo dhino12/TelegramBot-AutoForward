@@ -58,3 +58,4 @@ https://core.telegram.org/bots/features#commands
 
 ## Video penggunaan
 ![video_penggunaan_telebot](./github/src/video1.mp4)
+[![Tutorial](https://i.ytimg.com/vi/Hc79sDi3f0U/maxresdefault.jpg)](./github/src/video1.mp4)
