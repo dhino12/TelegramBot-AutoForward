@@ -28,15 +28,18 @@ async function askPhoneCode(conversation, context) {
     );
     const { message } = await conversation.wait();
     console.log("askPhoneCode: " + message.text);
+    if (!message.text.toLowerCase().includes("mycode")) throw {
+      code: 500,
+      message: "please use **mycode<yourcode>** without space\n, please repeat the command /connect <phoneNumber>",
+    }
     phoneCode = message.text.toLowerCase().replace("mycode", "").trim();
     // const authSignin = await signIn({...auth, code: phoneCode.toString('utf-8')})
 
     return phoneCode;
   } catch (error) {
     console.error(error);
+    throw error
   }
-
-  return null;
 }
 
 async function login(conversation, context) {

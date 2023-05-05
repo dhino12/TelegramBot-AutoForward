@@ -55,3 +55,6 @@ https://medium.com/@Trott/using-worker-threads-in-node-js-80494136dbb6
 
 **menu-button**
 https://core.telegram.org/bots/features#commands
+
+## Video penggunaan
+![video_penggunaan_telebot](./github/src/video1.mp4)
