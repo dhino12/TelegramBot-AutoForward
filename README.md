@@ -36,7 +36,7 @@ Dikarenakan bot ini adalah auto forward maka daftarkan juga apps ini ke telegram
         TOKEN=<Token Bot>
         APPID=<APPID>
         APPHASH='<APPHASH>'
-> Jika sudah, jalankan bot dengan npm run start
+> Jika sudah, jalankan bot dengan npm run dev
 ```
 
 ## Fitur
