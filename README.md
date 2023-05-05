@@ -59,3 +59,6 @@ https://core.telegram.org/bots/features#commands
 ## Video penggunaan
 [![Tutorial](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToBNJEdCfQpMOvxndPCyLZB1nmTjixJgh3BJVotm5SLu2SK4_6QmcUKoKZlB0ONWaE19Y&usqp=CAU)](https://youtu.be/eLiNNm7Nco0)
 
+<video width="320" height="240" controls>
+  <source src="https://youtu.be/eLiNNm7Nco0'" type="video/mp4">
+</video>
