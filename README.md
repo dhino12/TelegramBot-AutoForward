@@ -57,5 +57,4 @@ https://medium.com/@Trott/using-worker-threads-in-node-js-80494136dbb6
 https://core.telegram.org/bots/features#commands
 
 ## Video penggunaan
-![video_penggunaan_telebot](./github/src/video1.mp4)
-[![Now in Android: 55](https://i.ytimg.com/vi/Hc79sDi3f0U/maxresdefault.jpg)](https://youtu.be/eLiNNm7Nco0)
+![video_penggunaan_telebot](https://youtu.be/eLiNNm7Nco0)
