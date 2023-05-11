@@ -1,10 +1,16 @@
 # TelegramBot-AutoForward
-AutoForward TelegramBot
+AutoForward TelegramBot, Project ini menggunakan typescript sebagai recommended deployment dari grammyJS, tapi hal tersebut tidak beda jauh dari javascript.
 
-## Clone Project ini
+> Note: Bot ini berbeda dengan bot AutoForward yang sudah terkenal, ini adalah project untuk membuat seperti -nya
+
+[![Deploy to Cyclic](https://deploy.cyclic.sh/button.svg)](https://deploy.cyclic.sh/dhino12/TelegramBot-AutoForward)
+
+## Menjalankan di local
+Clone Project ini dengan git, sebelumnya download git, dan nodejs, cari di google
+
 > git clone https://github.com/dhino12/TelegramBot-AutoForward.git
 
-## Install Semua Package
+### Install Semua Package
 > npm i
 
 ### Cara menggunakan
@@ -14,10 +20,11 @@ Dikarenakan bot ini adalah auto forward maka daftarkan juga apps ini ke telegram
 > Pastikan Kamu Sudah Mempunyai Atau Menaruh TOKEN Bot Dan API KEY Fitur Lainnya Di Environment (process.env.{nama_env})
     > buat file dengan .env
     > isikan didalamnya dengan
-        TOKEN=<Token Bot>
+        BOT_TOKEN=<Token Bot>
         APPID=<APPID>
         APPHASH='<APPHASH>'
 > Jika sudah, jalankan bot dengan npm run dev
+> untuk mengubah semua code menjadi javascript dapat menggunakan `npm run build`
 ```
 
 ## Fitur
@@ -30,12 +37,13 @@ Dikarenakan bot ini adalah auto forward maka daftarkan juga apps ini ke telegram
 | ✅        | forward           | Setup auto forward          |
 | ✅        | connect           | Setup akun                  |
 
-**Penggunaan Worker**
+**Penggunaan Worker** <br>
 https://medium.com/@Trott/using-worker-threads-in-node-js-80494136dbb6
 <br><br>
 
-**menu-button**
+**menu-button** <br>
 https://core.telegram.org/bots/features#commands
+<br><br>
 
 ## Video penggunaan
 [![Tutorial](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToBNJEdCfQpMOvxndPCyLZB1nmTjixJgh3BJVotm5SLu2SK4_6QmcUKoKZlB0ONWaE19Y&usqp=CAU)](https://youtu.be/eLiNNm7Nco0)
