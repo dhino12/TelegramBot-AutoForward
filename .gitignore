@@ -68,12 +68,6 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# Session
-src/data/Session.json
-
-# Worker
-src/data/ForwardWorker.json
-
 # dotenv environment variables file
 .env
 .env.test
@@ -108,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+.vercel
+public/

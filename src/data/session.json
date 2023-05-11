@@ -1,0 +1,24 @@
+[
+    {
+        "id": 6138609386,
+        "name": "Joko",
+        "session": "1BQANOTEuMTA4LjU2LjE3MwG7FR3DFgjTSn6iiyPQ3cCXRg5yjQCJOME/FLVr116J6Eu1pSHMZ129jJg68GgfboQhbgDonUSV+SUg03fND6dQijDCWSPsYJnwXWkVgCX10ICySYAxK7Lm6ZZjWUa/7djEaeW6nIx8nOUIdJm7hCcTX/ggNyjGNz1EU+bkRas6hWYClrquc+vcEVvOYbXsDjYm9poZYO+wfBz8duj5waU7bzE2sPHusvlNY4ijnI3uKQgzOiM/tyNoGzTPPI/kkV3lONuNVNH+JDNKPtMwknhEjqlXz61HPLRwDZEhfDDxr3DxY41SHEK4s+amqvN9oMwTh71ayCSzAJnO/4uD3bc2ow==",
+        "dialogs": [
+            {
+                "id": "6002254257",
+                "folderId": 6002254257,
+                "title": "autoforward_bot",
+                "isGroup": false,
+                "isChannel": false
+            },
+            {
+                "id": "-829312391",
+                "folderId": 829312391,
+                "title": "ThirdTest - Group",
+                "isGroup": true,
+                "isChannel": false
+            }
+        ],
+        "isBot": false
+    }
+]
