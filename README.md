@@ -6,7 +6,8 @@ AutoForward TelegramBot, Project ini menggunakan typescript sebagai recommended 
 ## Deploy
 Saya sarankan menggunakan Cyclic untuk deploy telegram bot. \
 **Free hosting. No credit card required.** \
-[Tutorial Deploy telegram-bot ke Cyclic](https://www.cyclic.sh/posts/how-to-build-a-telegram-bot/)
+[Tutorial Deploy telegram-bot ke Cyclic](https://www.cyclic.sh/posts/how-to-build-a-telegram-bot/) \
+Jika ada yang baru bisa beritahu saya, caranya tuliskan issue baru di repo ini
 
 [![Deploy to Cyclic](https://deploy.cyclic.sh/button.svg)](https://deploy.cyclic.sh/dhino12/TelegramBot-AutoForward)
 
