@@ -57,7 +57,7 @@ async function login(conversation: MyConversation, context: MyContext) {
       console.log("Loading interactive example...");
       await client.connect();
   
-      if (await client.isUserAuthorized()) {
+      if (await client.isUserAuthorized() && IdDetected != undefined) {
         await context.reply("Anda Sudah Login 👌");
         await observeClientChat(context);
         return;
