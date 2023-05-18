@@ -3,12 +3,13 @@ import { Api, TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions";
 import * as dotenv from "dotenv";
 import { SaveStorage } from "../utils/saveStorage";
-import { connectAsUser } from "./handler/connectAsUser";
+import {connectAsUser} from "./handler/connectAsUser";
 import validator from "validator";
 import { loadWorkers } from "../utils/forwardWorker";
 import { NewMessage } from "telegram/events";
 import textHelp from "../utils/textHelp.json"
-import { getUserDB, getchanelDB, getgroupDB } from "./handler/dialogs"; 
+import { getUserDB, getchanelDB, getgroupDB } from "./handler/dialogs";
+import { createConversation } from "@grammyjs/conversations";
 dotenv.config();
 
 let phoneCode = "";
@@ -42,24 +43,25 @@ async function login(conversation: MyConversation, context: MyContext) {
     try {
       const filePath = SaveStorage.checkSessionExist("session");
       const result = SaveStorage.loadSession(filePath);
-      if (context.from == undefined) return
-      
-      // client = await connectAsUser(context.from?.id);
-      await client.connect();
+      if (context.from == undefined) {
+        throw {
+            code: 404,
+            message: "ERROR ID undefined"
+        }
+      }
       const IdDetected = result.filter(({ id }) => id == context.from?.id)[0];
-      
-      console.log(IdDetected);
-      
       if (IdDetected != undefined) {
         await client.disconnect();
         client = await connectAsUser(context.from?.id);
-        await client.connect();
-
+      }
+      console.log("Loading interactive example...");
+      await client.connect();
+  
+      if (await client.isUserAuthorized()) {
         await context.reply("Anda Sudah Login 👌");
         await observeClientChat(context);
         return;
-      } 
-      console.log("Loading interactive example...");
+      }
   
       const phoneNumber = context.match;
       if (
@@ -331,7 +333,7 @@ async function observeClientChat(context: MyContext) {
 
     for (const from of resultWorker.from) {
         for (const to of resultWorker.to) {
-            console.log("masuk for dalam");
+            console.log("masuk for dalam FROM " + from + " to " + to);
             //   await ctx.forwardMessage(to , from)
             client.addEventHandler(async (event) => {
                 const message = event.message;
