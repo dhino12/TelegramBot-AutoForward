@@ -4,7 +4,7 @@ import { TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions";
 
 const connectAsUser = async (idFromUser: number): Promise<TelegramClient> => {
-    let session = "";
+  let session = "";
 
   const filePath = SaveStorage.checkSessionExist("session");
   const result = SaveStorage.loadSession(filePath);
@@ -37,4 +37,19 @@ const connectAsUser = async (idFromUser: number): Promise<TelegramClient> => {
   });
 };
 
-export default connectAsUser;
+const logoutAsUser = async(): Promise<TelegramClient> => {
+  return new Promise((resolve, reject) => {
+    const client = new TelegramClient(
+      new StringSession(""),
+      parseInt(`${process.env.APPID}`),
+      `${process.env.APPHASH}`,
+      {
+        connectionRetries: 5,
+      }
+    );
+
+    return resolve(client);
+  })
+}
+
+export { connectAsUser, logoutAsUser };

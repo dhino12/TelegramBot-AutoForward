@@ -2,7 +2,7 @@
     "name": "grammy-vercel-boilerplate",
     "version": "1.0.0",
     "description": "Grammy boilerplate to develop and host telegram bots on Vercel",
-    "main": "dist/boy.js",
+    "main": "dist/index.js",
     "scripts": {
         "build": "tsc",
         "start": "node dist/index.js",
@@ -12,7 +12,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/neumanf/grammy-vercel-boilerplate.git"
+        "url": "git+https://github.com/dhino12/TelegramBot-AutoForward.git"
     },
     "keywords": [
         "boilerplate",
@@ -21,12 +21,12 @@
         "vercel-now",
         "grammy"
     ],
-    "author": "neumanf",
+    "author": "dhino12",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/neumanf/grammy-vercel-boilerplate/issues"
+        "url": "https://github.com/dhino12/TelegramBot-AutoForward/issues"
     },
-    "homepage": "https://github.com/neumanf/grammy-vercel-boilerplate#readme",
+    "homepage": "https://github.com/dhino12/TelegramBot-AutoForward#readme",
     "dependencies": {
         "@grammyjs/conversations": "^1.1.1",
         "express": "^4.18.2",

@@ -3,13 +3,12 @@ import { Api, TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions";
 import * as dotenv from "dotenv";
 import { SaveStorage } from "../utils/saveStorage";
-import connectAsUser from "./handler/connectAsUser";
+import { connectAsUser } from "./handler/connectAsUser";
 import validator from "validator";
 import { loadWorkers } from "../utils/forwardWorker";
 import { NewMessage } from "telegram/events";
 import textHelp from "../utils/textHelp.json"
-import { getUserDB, getchanelDB, getgroupDB } from "./handler/dialogs";
-import { createConversation } from "@grammyjs/conversations";
+import { getUserDB, getchanelDB, getgroupDB } from "./handler/dialogs"; 
 dotenv.config();
 
 let phoneCode = "";
@@ -43,25 +42,24 @@ async function login(conversation: MyConversation, context: MyContext) {
     try {
       const filePath = SaveStorage.checkSessionExist("session");
       const result = SaveStorage.loadSession(filePath);
-      if (context.from == undefined) {
-        throw {
-            code: 404,
-            message: "ERROR ID undefined"
-        }
-      }
+      if (context.from == undefined) return
+      
+      // client = await connectAsUser(context.from?.id);
+      await client.connect();
       const IdDetected = result.filter(({ id }) => id == context.from?.id)[0];
+      
+      console.log(IdDetected);
+      
       if (IdDetected != undefined) {
         await client.disconnect();
         client = await connectAsUser(context.from?.id);
-      }
-      console.log("Loading interactive example...");
-      await client.connect();
-  
-      if (await client.isUserAuthorized()) {
+        await client.connect();
+
         await context.reply("Anda Sudah Login 👌");
         await observeClientChat(context);
         return;
-      }
+      } 
+      console.log("Loading interactive example...");
   
       const phoneNumber = context.match;
       if (
