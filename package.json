@@ -2,7 +2,7 @@
     "name": "grammy-vercel-boilerplate",
     "version": "1.0.0",
     "description": "Grammy boilerplate to develop and host telegram bots on Vercel",
-    "main": "dist/index.js",
+    "main": "dist/boy.js",
     "scripts": {
         "build": "tsc",
         "start": "node dist/index.js",
