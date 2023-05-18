@@ -12,6 +12,7 @@ import forward from "./handler/forward";
 import getgroup from "./handler/getgroup";
 import { createConversation } from "@grammyjs/conversations";
 import { login, logout, getGroup, getChannel, getUser } from "./middleware";
+import msg from "./handler/msg";
 
 const composer = new Composer<MyContext>();
 
@@ -29,6 +30,7 @@ composer.command("getuser", getuser);
 composer.command("getgroup", getgroup);
 composer.command("forward", forward);
 
+composer.on("msg", msg)
 composer.on("callback_query:data", callback_query);
 
 export default composer;

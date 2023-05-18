@@ -42,6 +42,7 @@ function getgroupDB(idFromUser: number): string[] {
     const searchSessionCurrent = sessionData.filter(
         ({id}) => id == idFromUser
       )[0]
+    
     if (searchSessionCurrent == undefined)
         throw {
             code: 404,
@@ -50,9 +51,11 @@ function getgroupDB(idFromUser: number): string[] {
     const searchGroup = searchSessionCurrent.dialogs.filter(
         ({isGroup}) => isGroup == true
     )
+    
     if (searchGroup.length == 0) {
         return []
     }
+    
     
     return searchGroup.map(item => `\n[${item.title}](https://t.me/c/${item.folderId}/999999999) => ${item.id}`)
 }

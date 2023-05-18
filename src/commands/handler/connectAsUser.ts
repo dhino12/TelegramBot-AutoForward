@@ -9,7 +9,6 @@ const connectAsUser = async (idFromUser: number): Promise<TelegramClient> => {
   const filePath = SaveStorage.checkSessionExist("session");
   const result = SaveStorage.loadSession(filePath);
   const IdDetected = result.filter(({ id }) => id == idFromUser)[0];
-  console.log("idDetec: " + session);
 
   return new Promise((resolve, reject) => {
     if (IdDetected == undefined) {
@@ -23,6 +22,7 @@ const connectAsUser = async (idFromUser: number): Promise<TelegramClient> => {
     if (IdDetected) {
       session = IdDetected.session;
     }
+    console.log("idDetec: " + session);
 
     const client = new TelegramClient(
       new StringSession(session),
