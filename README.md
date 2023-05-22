@@ -51,4 +51,5 @@ https://core.telegram.org/bots/features#commands
 <br><br>
 
 ## Video penggunaan
-[![Tutorial](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToBNJEdCfQpMOvxndPCyLZB1nmTjixJgh3BJVotm5SLu2SK4_6QmcUKoKZlB0ONWaE19Y&usqp=CAU)](https://youtu.be/eLiNNm7Nco0)
+
+[![Tutorial](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/eLiNNm7Nco0)
