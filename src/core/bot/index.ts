@@ -4,15 +4,10 @@ import { type Conversation, type ConversationFlavor, conversations } from "@gram
 type MyContext = Context & ConversationFlavor;
 type MyConversation = Conversation<MyContext>;
 
-const bot = new Bot<MyContext>(String(process.env.BOT_TOKEN));
+const bot = new Bot(String(process.env.BOT_TOKEN));
 
-bot.use(
-    session({
-        type: "multi",
-        conversation: {}, // bisa dibiarkan kosong
-    }),
-);
-bot.use(conversations());
+// bot.use(session({ initial: () => ({}) }));
+// bot.use(conversations());
 
 bot.init()
     .then((client) => {
@@ -28,5 +23,11 @@ bot.api.setMyCommands([
     { command: "getgroup", description: "Get Group ID" },
     { command: "getchanel", description: "Get Channel ID" },
 ]);
+
+bot.catch((ctx) => {
+    console.error("Error Bot");
+    console.log(ctx);
+    
+})
 
 export { bot, MyContext, MyConversation };
