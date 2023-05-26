@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 
 class SaveStorage {
-    static checkSessionExist(fileName: string) {
+    static checkFileSessionExist(fileName: string) {
         const dirPath = path.resolve(__dirname, "../data");
         const filePath = `${dirPath}/${fileName}.json`;
 
@@ -23,10 +23,34 @@ class SaveStorage {
 
     static loadSession(filePath: string) {
         const fileSession = fs.readFileSync(`${filePath}`, "utf-8");
-        const sessions = JSON.parse(fileSession);
-
-        // console.log(sessions);
+        const sessions = JSON.parse(fileSession); 
         return sessions;
+    }
+
+    /**
+     * 
+     * @param id obtained from the user (belongs to the user)
+     */
+    static checkSession(id?: number): {
+        id: number, name: string, session: string, dialogs: {
+            id: string, folderId: number, 
+            title: string, isGroup: boolean, isChannel: boolean
+        }[], isBot: boolean
+    }[] {
+        if (id == undefined) return []
+
+        const filePath = SaveStorage.checkFileSessionExist("session");
+        const result = SaveStorage.loadSession(filePath);
+        if (id == undefined) { throw { code: 404, message: "ERROR ID undefined" } }
+
+        const IdDetected = result.filter((item) => item.id == id);
+        
+        if (IdDetected != undefined) {
+            return IdDetected
+        } else {
+            return []
+        }
+        return []
     }
 
     static set(userAttrib: any, fileName: string) {
@@ -39,7 +63,7 @@ class SaveStorage {
         }
 
         if (userAttrib instanceof Object) {
-            const checkFileExist = this.checkSessionExist(fileName);
+            const checkFileExist = this.checkFileSessionExist(fileName);
             const sessions = this.loadSession(checkFileExist);
 
             const isDuplicate = sessions.find((session) => session.id == userAttrib.id);
@@ -59,7 +83,7 @@ class SaveStorage {
 
     static updateDialogs(id: number, fileName: string, dialogs: any) {
         return new Promise((resolve, reject) => {
-            const filePath = this.checkSessionExist(fileName);
+            const filePath = this.checkFileSessionExist(fileName);
             let sessionsData = this.loadSession(filePath);
             const sessionTmp = sessionsData.find((session) => session.id == id);
             sessionsData = sessionsData.filter((session) => session.id != id);
@@ -89,7 +113,7 @@ class SaveStorage {
     }
 
     static rm(id: number, fileName: string) {
-        const checkFileExist = this.checkSessionExist(fileName);
+        const checkFileExist = this.checkFileSessionExist(fileName);
         const sessions = this.loadSession(checkFileExist);
 
         const removeSession = sessions.filter((session) => session.id != id);

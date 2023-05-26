@@ -5,7 +5,7 @@ import { SaveStorage } from "./saveStorage"
  * Session Manajemen for forward ID and more
  */
 const checkWorker = (label: string, idFromUser: number) => {
-    const filePath = SaveStorage.checkSessionExist("forwardWorker")
+    const filePath = SaveStorage.checkFileSessionExist("forwardWorker")
     const workers = SaveStorage.loadSession(filePath)
 
     const findSameWorkers = workers.filter(({ worker, id }) => {
@@ -35,11 +35,11 @@ const resultSplitId = (argAction: string, argLabel: string, argCommand: string) 
     return { froms, toMany };
 }
 
-const loadWorkers = (idFromUser: number) => {
-    const filePath = SaveStorage.checkSessionExist('forwardWorker')
+const loadWorkers = () => {
+    const filePath = SaveStorage.checkFileSessionExist('forwardWorker')
     const workers = SaveStorage.loadSession(filePath)
-    const findWorker = workers.filter(({id}) => id == idFromUser)
-    return findWorker
+    
+    return workers
 }
 
 const saveToStorage = (forwardInfo: any) => {
