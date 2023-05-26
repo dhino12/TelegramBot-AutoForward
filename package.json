@@ -12,7 +12,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/dhino12/TelegramBot-AutoForward.git"
+        "url": "git+https://github.com/neumanf/grammy-vercel-boilerplate.git"
     },
     "keywords": [
         "boilerplate",
@@ -21,12 +21,12 @@
         "vercel-now",
         "grammy"
     ],
-    "author": "dhino12",
+    "author": "neumanf",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/dhino12/TelegramBot-AutoForward/issues"
+        "url": "https://github.com/neumanf/grammy-vercel-boilerplate/issues"
     },
-    "homepage": "https://github.com/dhino12/TelegramBot-AutoForward#readme",
+    "homepage": "https://github.com/neumanf/grammy-vercel-boilerplate#readme",
     "dependencies": {
         "@grammyjs/conversations": "^1.1.1",
         "express": "^4.18.2",
