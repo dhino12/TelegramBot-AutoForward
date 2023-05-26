@@ -1,15 +1,16 @@
 /* eslint-disable prettier/prettier */
 import { checkWorker, resultSplitId, saveToStorage } from "../../utils/forwardWorker";
-import { MyContext } from "../../core/bot";
+// import { MyContext } from "../../core/bot";
 import * as textHelp from "../../utils/textHelp.json";
 import validator from "validator"
+import { Context } from "grammy";
 
 /**
  * setup forward from -> to [SAVE TO JSON]
  * @param ctx MyContext from converstation core\bot\index.ts
  * @returns Promise<void> 
  */
-const forward = async (ctx: MyContext): Promise<void> => { 
+const forward = async (ctx: Context): Promise<void> => { 
     if (ctx.chat?.type != "private") {
         await ctx.reply(textHelp.pleasePrivateChat + ` [${ctx.me.username}](tg://user?id=${ctx.me.id})`, {
             parse_mode: "Markdown",

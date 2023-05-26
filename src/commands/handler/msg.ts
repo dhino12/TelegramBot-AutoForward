@@ -1,53 +1,54 @@
 /* eslint-disable prettier/prettier */
 import { loadWorkers } from "../../utils/forwardWorker";
-import { MyContext } from "../../core/bot";
+import { Context } from "grammy";
+import { signIn } from "../middleware";
 
-const msg = async (ctx: MyContext): Promise<void> => {
+const forwardTo = async (forwardWorker: {from: [], to: []}[], ctx: Context) => {
+  console.log(ctx.message);
+  
+  for (const dataUser of forwardWorker) {
+    for (const from of dataUser.from) {
+      if (ctx.chat?.id != from) continue
+      for (const to of dataUser.to) {
+        await ctx.forwardMessage(to, from);
+      }
+    }
+  }
+}
+
+const msg = async (ctx: Context): Promise<void> => {
   // console.log(ctx.chat);
   try {
     if (ctx.chat == undefined) throw { code: 404, message: "chatType not found" }
     if (ctx.from == undefined) throw { code: 404, message: "chat id not found" }
     if (ctx.message == undefined) throw { code: 404, message: "chatMessage not found" }
-    console.log('masuk');
+    console.log('masuk ' + ctx.from.first_name);
     
-    const resultWorker = loadWorkers(ctx.from.id)[0];
+    const resultWorker = loadWorkers();
+    if (resultWorker == undefined) return;
+
     switch (ctx.chat.type) {
       case "channel":
-        console.log(ctx.from);
+        forwardTo(resultWorker, ctx)
         break;
       case "supergroup":
-        if (resultWorker == undefined) return;
-
-        for (const from of resultWorker.from) {
-          for (const to of resultWorker.to) {
-            console.log(to);
-            
-            await ctx.forwardMessage(to, from);
-          }
-        }
+        forwardTo(resultWorker, ctx)
         break;
       case "group":
-        console.log("grup: " + ctx.message.text);
-        if (resultWorker == undefined) return;
-
-        for (const from of resultWorker.from) {
-          for (const to of resultWorker.to) {
-            console.log(to);
-
-            await ctx.forwardMessage(to, from);
-          }
-        }
+        forwardTo(resultWorker, ctx)
         break;
       case "private":
-        console.log(`pc: ${ctx.message.text}`);
+        // forwardTo(resultWorker, ctx)
+        console.log('masuk private: ', ctx.message.text);
+        if (ctx.message.text?.includes("mycode")) {
+          signIn(ctx)
+        }
         break;
       default:
         break;
     }
-    // console.log(await ctx.exportChatInviteLink());
   } catch (error) {
     console.error(error);
-    
   }
 };
 

@@ -8,17 +8,13 @@ import { SaveStorage } from "../../utils/saveStorage";
  * the database and displaying it to the user
  */
 function getchanelDB(idFromUser: number): string[] {
-    const filePath = SaveStorage.checkSessionExist('session');
-    const sessionData = SaveStorage.loadSession(filePath)
-    const searchSessionCurrent = sessionData.filter(
-        ({id}) => id == idFromUser
-      )[0]
-    if (searchSessionCurrent == undefined)
+    const checkSession = SaveStorage.checkSession(idFromUser)[0]
+    if (checkSession == undefined)
         throw {
             code: 404,
             message: 'Sepertinya anda belum login, gunakan /connect untuk login'
         }
-    const searchGroup = searchSessionCurrent.dialogs.filter(
+    const searchGroup = checkSession.dialogs.filter(
         ({isChannel}) => isChannel  == true
     )
     console.log(searchGroup);
@@ -37,25 +33,19 @@ function getchanelDB(idFromUser: number): string[] {
  * the database and displaying it to the user
  */
 function getgroupDB(idFromUser: number): string[] {
-    const filePath = SaveStorage.checkSessionExist('session');
-    const sessionData = SaveStorage.loadSession(filePath)
-    const searchSessionCurrent = sessionData.filter(
-        ({id}) => id == idFromUser
-      )[0]
-    
-    if (searchSessionCurrent == undefined)
+    const checkSession = SaveStorage.checkSession(idFromUser)[0]
+    if (checkSession == undefined)
         throw {
             code: 404,
             message: 'Sepertinya anda belum login, gunakan /connect untuk login'
         }
-    const searchGroup = searchSessionCurrent.dialogs.filter(
-        ({isGroup}) => isGroup == true
+        
+    const searchGroup = checkSession.dialogs.filter(
+        ({ isGroup }) => isGroup == true
     )
-    
     if (searchGroup.length == 0) {
         return []
     }
-    
     
     return searchGroup.map(item => `\n[${item.title}](https://t.me/c/${item.folderId}/999999999) => ${item.id}`)
 }
@@ -68,17 +58,13 @@ function getgroupDB(idFromUser: number): string[] {
  * the database and displaying it to the user
  */
 function getUserDB(idFromUser: number): string[] {
-    const filePath = SaveStorage.checkSessionExist('session');
-    const sessionData = SaveStorage.loadSession(filePath)
-    const searchSessionCurrent = sessionData.filter(
-        ({id}) => id == idFromUser
-      )[0]
-    if (searchSessionCurrent == undefined)
+    const checkSession = SaveStorage.checkSession(idFromUser)[0]
+    if (checkSession == undefined)
         throw {
             code: 404,
             message: 'Sepertinya anda belum login, gunakan /connect untuk login'
         }
-    const searchPrivateChat = searchSessionCurrent.dialogs.filter(
+    const searchPrivateChat = checkSession.dialogs.filter(
         ({isGroup, isChannel}) => isGroup == false && isChannel == false
     )
     if (searchPrivateChat.length == 0) {

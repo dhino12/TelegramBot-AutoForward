@@ -1,7 +1,8 @@
+import { Context } from "grammy";
 import { MyContext } from "../../core/bot";
 import * as textHelp from "../../utils/textHelp.json";
 
-const callback_query = async (ctx: MyContext): Promise<void> => {
+const callback_query = async (ctx: Context): Promise<void> => {
     const callbackData = ctx.callbackQuery?.data;
     switch (callbackData) {
         case "firstconnection":

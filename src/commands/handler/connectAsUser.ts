@@ -4,25 +4,23 @@ import { TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions";
 
 const connectAsUser = async (idFromUser: number): Promise<TelegramClient> => {
-  let session = "";
+    let session = "";
 
-  const filePath = SaveStorage.checkSessionExist("session");
-  const result = SaveStorage.loadSession(filePath);
-  const IdDetected = result.filter(({ id }) => id == idFromUser)[0];
+  const checkSession = SaveStorage.checkSession(idFromUser)[0];
 
   return new Promise((resolve, reject) => {
-    if (IdDetected == undefined) {
+    if (checkSession == undefined) {
       return reject({
         code: 404,
         message:
           "Session is empty, please registerd \n /connect <phone_number>",
       });
     }
+    console.log("idDetec: " + checkSession.session);
 
-    if (IdDetected) {
-      session = IdDetected.session;
+    if (checkSession) {
+      session = checkSession.session;
     }
-    console.log("idDetec: " + session);
 
     const client = new TelegramClient(
       new StringSession(session),
@@ -37,19 +35,4 @@ const connectAsUser = async (idFromUser: number): Promise<TelegramClient> => {
   });
 };
 
-const logoutAsUser = async(): Promise<TelegramClient> => {
-  return new Promise((resolve, reject) => {
-    const client = new TelegramClient(
-      new StringSession(""),
-      parseInt(`${process.env.APPID}`),
-      `${process.env.APPHASH}`,
-      {
-        connectionRetries: 5,
-      }
-    );
-
-    return resolve(client);
-  })
-}
-
-export { connectAsUser, logoutAsUser };
+export default connectAsUser;
