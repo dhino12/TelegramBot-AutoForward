@@ -82,13 +82,13 @@ async function login(context: Context) {
 
         setTimeout(async () => {
             try {
+                // jika dalam waktu 10 detik belum auth, maka disconnect
+                    // dan jalankan kembali server
                 if (!await client.isUserAuthorized()) {
-                    await context.reply(
-                        "the 10 second timeout has expired, please run /connect <PhoneNumber> again",
-                    );
-
                     await client.disconnect()
                     await startObserve(context)
+                    await context.reply("time has expired from the timeout of 60 seconds, please repeat the command /connect <PhoneNumber>")
+
                     throw {
                         code: 500,
                         message: "waktu kamu sudah habis"
@@ -96,9 +96,9 @@ async function login(context: Context) {
                 }   
             } catch (error) {
                 console.error(error);
+                return;
             }
-            return;
-        }, 10000);
+        }, 60000);
     } catch (error: any) {
         if (Number.isInteger(error.code) || error.seconds == undefined) {
             await context.reply(error?.message || "something wen't wrong");
@@ -145,8 +145,7 @@ async function signIn(context: Context) {
 
         await startObserve(context);
     } catch (error) {
-        console.error(error);
-        
+        console.error(error); 
     }
 }
 
@@ -328,27 +327,34 @@ async function getUser(context: Context) {
 async function startObserve(context: Context) {
     if (context.from == undefined) return;
 
-    await client.disconnect();
-    client = await connectAsUser(context.from?.id);
-    await client.connect();
+    try {
+        await client.disconnect();
+        client = await connectAsUser(context.from?.id);
+        await client.connect();
 
-    if (!(await client.isUserAuthorized())) return;
-    const resultWorker = loadWorkers();
-    if (resultWorker == undefined) {
-        console.log("resultWorker undefined");
+        if (!(await client.isUserAuthorized())) return;
+        const resultWorker = loadWorkers();
+        if (resultWorker == undefined) {
+            console.log("resultWorker undefined");
 
-        return;
+            return;
+        }
+        console.log(resultWorker);
+
+        context.api.sendMessage(context.from?.id, "Wait 5s for next message");
+        for (let index = 0; index < resultWorker.length; index++) {
+            await clientChat(context, resultWorker[index]);
+            console.log("END for");
+        }
+
+        context.api.sendMessage(context.from?.id, "Okey i'm ready...");
+        console.log("END function");
+    } catch (error: any) {
+        console.error("startObserve: ", error);
+        if(error.code != undefined) {
+            await context.reply(error.message)
+        }
     }
-    console.log(resultWorker);
-
-    context.api.sendMessage(context.from?.id, "Wait 5s for next message");
-    for (let index = 0; index < resultWorker.length; index++) {
-        await clientChat(context, resultWorker[index]);
-        console.log("END for");
-    }
-
-    context.api.sendMessage(context.from?.id, "Okey i'm ready...");
-    console.log("END function");
 }
 
 const clientChat = (context: Context, { to, from, id }): Promise<void> => {
