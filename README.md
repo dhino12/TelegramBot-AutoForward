@@ -52,4 +52,7 @@ https://core.telegram.org/bots/features#commands
 
 ## Video penggunaan
 
-[![Tutorial](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/eLiNNm7Nco0)
+[![Tutorial](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/eLiNNm7Nco0) <br>
+
+how to run this bot on local server (personal computer) ?<br>
+[![Tutorial](https://img.shields.io/badge/Youtube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/wUE9niX0Isc)
