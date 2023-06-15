@@ -328,11 +328,15 @@ async function startObserve(context: Context) {
     if (context.from == undefined) return;
 
     try {
-        await client.disconnect();
-        client = await connectAsUser(context.from?.id);
-        await client.connect();
+        // await client.disconnect();
+        const clientUser = await connectAsUser(context.from?.id);
+        await clientUser.connect();
 
-        if (!(await client.isUserAuthorized())) return;
+        console.log("auth: " + await clientUser.isUserAuthorized());
+        if (!(await clientUser.isUserAuthorized())) {
+            
+            return
+        };
         const resultWorker = loadWorkers();
         if (resultWorker == undefined) {
             console.log("resultWorker undefined");
@@ -343,7 +347,7 @@ async function startObserve(context: Context) {
 
         context.api.sendMessage(context.from?.id, "Wait 5s for next message");
         for (let index = 0; index < resultWorker.length; index++) {
-            await clientChat(context, resultWorker[index]);
+            await clientChat(context, resultWorker[index], clientUser);
             console.log("END for");
         }
 
@@ -357,24 +361,27 @@ async function startObserve(context: Context) {
     }
 }
 
-const clientChat = (context: Context, { to, from, id }): Promise<void> => {
+const clientChat = (context: Context, { to, from, id }, clientUser: TelegramClient): Promise<void> => {
     return new Promise((resolve, reject) => {
         setTimeout(resolve, 1000);
-
-        client.addEventHandler(async (event) => {
+        
+        clientUser.addEventHandler(async (event) => {
             const message = event.message;
 
-            console.log(from.includes(event.message.chatId?.toString()));
+            console.log("include: "+from.includes(event.message.chatId?.toString()));
 
             if (event.message.chatId?.toString() != id && !from.includes(event.message.chatId?.toString())) {
                 console.log("masuk IF: ", await event.chatId, "  ", id);
                 return;
             }
+
             // penyebab kenapa bot tidak mendeteksi pesan group
             // rencananya adalah ketika group ada pesan maka forward ke user
             // group => user
+            // console.log(context.message?.contact);
+            
             if (event.isPrivate && message.senderId != undefined) {
-                const getMev2 = await client.getEntity(message.senderId);
+                const getMev2 = await clientUser.getEntity(message.senderId);
                 console.log(message.senderId, " ", message.message);
                 try {
                     for (const toChat of to) {
@@ -386,7 +393,7 @@ const clientChat = (context: Context, { to, from, id }): Promise<void> => {
                     }
                     resolve();
                 } catch (error: any) {
-                    console.log(error);
+                    console.log("throw: "+error);
 
                     if (Number.isInteger(error.error_code)) {
                         await context.reply(`sepertinya bot belum tergabung didalam [group/channel](https://t.me/c/${Math.abs(to)}/999999999)`, {

@@ -29,8 +29,7 @@ class Converstation {
             };
     
             // Kirim pesan selamat datang
-            console.log("Halo! Selamat datang di percakapan.");
-            
+            console.log("Converstation Open!.."); 
         }
     }
 
@@ -39,8 +38,8 @@ class Converstation {
         const message = this.ctx.message?.text
 
         if (message != undefined && message.includes("mycode", 0)) {
-            conversation.mycode = message;
             console.log("Ini adalah langkah pertama.");
+            conversation.mycode = message;
             console.log(conversations);
             return conversation
         }
@@ -49,9 +48,8 @@ class Converstation {
     }
 
     async end() {
-        delete conversations[this.chatId];
         console.log("Percakapan selesai.");
-        
+        delete conversations[this.chatId];
         return true
     }
 }

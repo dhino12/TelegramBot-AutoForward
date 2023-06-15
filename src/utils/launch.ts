@@ -1,4 +1,5 @@
-import { Bot, Context, webhookCallback } from "grammy"; 
+import { Bot, Context, webhookCallback } from "grammy";
+import { MyContext } from "../core/bot";
 import express from "express";
 
 const production = async (bot: Bot<Context>): Promise<void> => {

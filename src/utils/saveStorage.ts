@@ -49,8 +49,7 @@ class SaveStorage {
             return IdDetected
         } else {
             return []
-        }
-        return []
+        } 
     }
 
     static set(userAttrib: any, fileName: string) {

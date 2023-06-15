@@ -16,8 +16,7 @@ const forwardTo = async (forwardWorker: {from: [], to: []}[], ctx: Context) => {
   }
 }
 
-const msg = async (ctx: Context): Promise<void> => {
-  // console.log(ctx.chat);
+const msg = async (ctx: Context): Promise<void> => { 
   try {
     if (ctx.chat == undefined) throw { code: 404, message: "chatType not found" }
     if (ctx.from == undefined) throw { code: 404, message: "chat id not found" }
