@@ -10,6 +10,8 @@ Jika ada yang baru bisa beritahu saya, caranya tuliskan issue baru di repo ini
 
 [![Deploy to Cyclic](https://deploy.cyclic.sh/button.svg)](https://deploy.cyclic.sh/dhino12/TelegramBot-AutoForward)
 
+> Note: Ketika menggunakan /connect, bot akan login sebagai anda, bot hanya akan mengambil data id dan nama group, channel, user, apabila anda mengirimkan perintah /getgroup, /getchanel, /getuser untuk keperluan forward, namun hal tersebut (/connect as user) membutuhkan resource lebih berat pada saat deploy (inilah yang masih menjadi PR untuk saya)
+
 ## Menjalankan di local
 Clone Project ini dengan git, sebelumnya download git, dan nodejs, cari di google
 
