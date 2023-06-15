@@ -4,7 +4,7 @@ import { Context } from "grammy";
 import { signIn } from "../middleware";
 
 const forwardTo = async (forwardWorker: {from: [], to: []}[], ctx: Context) => {
-  console.log(ctx.message);
+  // console.log(ctx.message);
   
   for (const dataUser of forwardWorker) {
     for (const from of dataUser.from) {
@@ -23,18 +23,18 @@ const msg = async (ctx: Context): Promise<void> => {
     if (ctx.message == undefined) throw { code: 404, message: "chatMessage not found" }
     console.log('masuk ' + ctx.from.first_name);
     
-    const resultWorker = loadWorkers();
-    if (resultWorker == undefined) return;
+    const { data } = await loadWorkers(`${ctx.from.id}`);
+    if (data == undefined) return;
 
     switch (ctx.chat.type) {
       case "channel":
-        forwardTo(resultWorker, ctx)
+        forwardTo(data, ctx)
         break;
       case "supergroup":
-        forwardTo(resultWorker, ctx)
+        forwardTo(data, ctx)
         break;
       case "group":
-        forwardTo(resultWorker, ctx)
+        forwardTo(data, ctx)
         break;
       case "private":
         // forwardTo(resultWorker, ctx)
@@ -47,7 +47,7 @@ const msg = async (ctx: Context): Promise<void> => {
         break;
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
   }
 };
 

@@ -29,7 +29,7 @@ class Converstation {
             };
     
             // Kirim pesan selamat datang
-            console.log("Converstation Open!.."); 
+            
         }
     }
 
@@ -40,7 +40,7 @@ class Converstation {
         if (message != undefined && message.includes("mycode", 0)) {
             console.log("Ini adalah langkah pertama.");
             conversation.mycode = message;
-            console.log(conversations);
+            
             return conversation
         }
 
@@ -48,7 +48,7 @@ class Converstation {
     }
 
     async end() {
-        console.log("Percakapan selesai.");
+        
         delete conversations[this.chatId];
         return true
     }

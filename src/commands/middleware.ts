@@ -1,21 +1,25 @@
-import { MyContext, MyConversation } from "../core/bot";
 import { Api, TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions";
 import * as dotenv from "dotenv";
-import { SaveStorage } from "../utils/saveStorage";
 import connectAsUser from "./handler/connectAsUser";
 import validator from "validator";
-import { loadWorkers } from "../utils/forwardWorker";
 import { NewMessage } from "telegram/events";
 import textHelp from "../utils/textHelp.json";
 import { getUserDB, getchanelDB, getgroupDB } from "./handler/dialogs";
 import { Context } from "grammy";
 import Converstation from "./handler/converstation";
+import getAllFromIdForwardHandler from "../libs/handler/getAllFromIdForwardHandler";
+import registerHandler from "../libs/handler/registerHandler";
+import loginHandler from "../libs/handler/loginHandler"
+import updateUserHandler from "../libs/handler/updateUserHandler";
+import deleteUserHandler from "../libs/handler/deleteUserHandler"; 
+import { fork } from "child_process";
 dotenv.config();
 
 let client = new TelegramClient(new StringSession(""), parseInt(`${process.env.APPID}`), `${process.env.APPHASH}`, {
     connectionRetries: 5,
 });
+
 let authentication = {
     phoneCodeHash: "",
     phoneNumber: "",
@@ -27,9 +31,8 @@ async function askPhoneCode(context: Context): Promise<string> {
         if (context.from?.id == undefined || context.chat == undefined) return "";
         const converstation = new Converstation(context)
         const dataUser = await converstation.start()
-        if (dataUser != undefined) {
-            console.log(dataUser);
-            const phoneCode = dataUser["mycode"].replace("mycode", "").trim();
+        if (dataUser != undefined) { 
+            const phoneCode = dataUser["mycode"].toLowerCase().replace("mycode", "").trim();
             await converstation.end()
             return phoneCode;
         }
@@ -41,126 +44,97 @@ async function askPhoneCode(context: Context): Promise<string> {
 }
 
 async function login(context: Context) {
-    try {
-        if (context.from?.id == undefined || context.chat == undefined) return;
-        await client.connect();
+    if (context.from?.id == undefined || context.chat == undefined) return;
 
-        const checkSession = SaveStorage.checkSession(context.from?.id)[0];
-        if (checkSession != undefined) {
-            await context.reply("Anda Sudah Terdaftar 👌");
-            await startObserve(context);
-            return;
-        }
-
-        const phoneNumber = context.match;
-        if (validator.isEmpty(`${phoneNumber}`) || !validator.isMobilePhone(`${phoneNumber}`)) {
-            console.log("PhoneNumber has ", phoneNumber);
-            throw {
-                code: 404,
-                message: "Ooops PhoneNumber is notValid,\nplease follow /connect <phoneNumber>",
-            };
-        }
-        const auth = await client.sendCode(
-            {
-                apiHash: `${process.env.APPHASH}`,
-                apiId: parseInt(`${process.env.APPID}`),
-            },
-            `${phoneNumber}`,
-        );
-        if (phoneNumber == undefined) return
-
-        const dataAuth = {
-            phoneNumber: phoneNumber.toString(),
-            phoneCodeHash: auth.phoneCodeHash,
-            isCodeViaApp: auth.isCodeViaApp,
-        }
-        
-        authentication = dataAuth
-        await context.reply(
-            "Silahkan masukan code user yang dikirim telegram dari SMS / chat app\n\nFor Example, your login code is 123456 dan masukan mycode123456",
-        );
-
-        setTimeout(async () => {
-            try {
-                // jika dalam waktu 10 detik belum auth, maka disconnect
-                    // dan jalankan kembali server
-                if (!await client.isUserAuthorized()) {
-                    await client.disconnect()
-                    await startObserve(context)
-                    await context.reply("time has expired from the timeout of 60 seconds, please repeat the command /connect <PhoneNumber>")
-
-                    throw {
-                        code: 500,
-                        message: "waktu kamu sudah habis"
-                    }
-                }   
-            } catch (error) {
-                console.error(error);
-                return;
-            }
-        }, 60000);
-    } catch (error: any) {
-        if (Number.isInteger(error.code) || error.seconds == undefined) {
-            await context.reply(error?.message || "something wen't wrong");
-        }
-
-        if (error.seconds) {
-            await context.reply(`FLOOD: anda sudah mencapai batas, tunggu hingga ${error.seconds} detik`);
-        }
-        console.log(error);
-        await client.disconnect();
+    const checkSession = await loginHandler(`${context.from.id}`)
+    
+    if (checkSession.data != undefined) {
+        await startObserve(context);
+        return checkSession;
     }
+
+    await client.connect();
+    const phoneNumber = context.match;
+    if (validator.isEmpty(`${phoneNumber}`) || !validator.isMobilePhone(`${phoneNumber}`)) {
+        console.log("PhoneNumber has ", phoneNumber);
+        throw {
+            code: 404,
+            message: "Ooops PhoneNumber is notValid,\nplease follow /connect <phoneNumber>",
+        };
+    }
+    const auth = await client.sendCode(
+        {
+            apiHash: `${process.env.APPHASH}`,
+            apiId: parseInt(`${process.env.APPID}`),
+        },
+        `${phoneNumber}`,
+    );
+    if (phoneNumber == undefined) return
+
+    const dataAuth = {
+        phoneNumber: phoneNumber.toString(),
+        phoneCodeHash: auth.phoneCodeHash,
+        isCodeViaApp: auth.isCodeViaApp,
+    }
+    
+    authentication = dataAuth
+
+    setTimeout(async () => {
+        try {
+            if (!(await loginHandler(`${context.from?.id}`)).data) {
+                await client.disconnect()
+                // await startObserve(context)
+                await context.reply("time has expired from the timeout of 60 seconds, please repeat the command /connect <PhoneNumber>")
+            }
+        } catch (error) {
+            throw error
+        }   
+    }, 60000);
     return;
 }
 
 async function signIn(context: Context) {
     if (context.from?.id == undefined || context.chat == undefined) return;
-    try {
-        const phoneCode = await askPhoneCode(context);
+    const phoneCode = await askPhoneCode(context);
 
-        if (phoneCode == "") {
-            console.log("phoneCode : ", phoneCode);
-            return
-        }
-        await client.invoke(
-            new Api.auth.SignIn({
-                phoneNumber: `${authentication["phoneNumber"]}`,
-                phoneCodeHash: authentication.phoneCodeHash,
-                phoneCode: phoneCode.toString(),
-            }),
-        );
-        console.log(client.session.save()); // Save this string to avoid logging in again
-        SaveStorage.set(
-                {
-                    id: context.from.id,
-                    name: context.from.first_name,
-                    session: client.session.save(),
-                    dialogs: [],
-                    isBot: context.from.is_bot,
-                },
-                "session",
-        );
-        await client.disconnect()
-        await context.reply("Success !");
-
-        await startObserve(context);
-    } catch (error) {
-        console.error(error); 
+    if (phoneCode == "") {
+        console.log("phoneCode : ", phoneCode);
+        return
     }
+    await client.invoke(
+        new Api.auth.SignIn({
+            phoneNumber: `${authentication["phoneNumber"]}`,
+            phoneCodeHash: authentication.phoneCodeHash,
+            phoneCode: phoneCode.toString(),
+        }),
+    ); 
+    const result = await registerHandler({
+        id: `${context.from.id}`,
+        name: context.from.first_name,
+        session: client.session.save(),
+        dialogs: [],
+        isBot: context.from.is_bot,
+    })
+    await client.disconnect()
+
+    await startObserve(context);
+    return result;
 }
 
-async function logout(conversation: MyConversation, context: MyContext) {
+async function logout(context: Context) {
     try {
-        if (context.from == undefined) {
+        if (context.from == undefined || context.message == undefined) {
             throw {
                 code: 404,
                 message: "Sorry getGroup is not completed!, empty id",
             };
         }
-        const result = SaveStorage.rm(context.from.id, "session");
-        client.invoke(new Api.auth.LogOut());
-        if (result) {
-            context.reply("Session Berhasil dihapus");
+        
+        const result = await deleteUserHandler(`${context.from.id}`);
+        if (result.code == 204) {
+            context.reply("Session Berhasil dihapus", {
+                reply_to_message_id: context.message.message_id
+            });
         } else {
             context.reply("Ooopss sepertinya anda belum login");
         }
@@ -168,6 +142,7 @@ async function logout(conversation: MyConversation, context: MyContext) {
         console.error(error);
     }
 
+    await client.disconnect()
     return;
 }
 
@@ -180,10 +155,13 @@ async function getGroup(context: Context) {
                 message: "Sorry getGroup is not completed!, empty id",
             };
         }
-        client = await connectAsUser(context.from.id);
+        const { data } = await loginHandler(`${context.from.id}`);
+        if (data == undefined) throw {
+            code: 404, message: "data is empty, please login /connect phoneNumber"
+        }
+        client = await connectAsUser(data.session);
         await client.connect();
-
-        const groupFromDB = getgroupDB(context.from.id);
+        const groupFromDB = getgroupDB(data);
         if (groupFromDB.length != 0 && context.match != "update") {
             // check in db
             await client.disconnect();
@@ -194,11 +172,11 @@ async function getGroup(context: Context) {
 
         // create newDialogs in session.js
         const dialogs = await client.getDialogs();
-        const groups: object[] = [];
+        const groups: any[] = [];
         const dialogsData = dialogs.map((dialog) => {
             if (!dialog.isChannel && dialog.isGroup == true) {
                 const data = {
-                    id: dialog.id,
+                    id: `${dialog.id}`,
                     folderId: Math.abs(parseInt(`${dialog.id}`)),
                     title: dialog.title,
                     isGroup: dialog.isGroup,
@@ -211,7 +189,10 @@ async function getGroup(context: Context) {
         });
 
         // save to storage
-        await SaveStorage.updateDialogs(context.from.id, "session", groups);
+        // await SaveStorage.updateDialogs(context.from.id, "session", groups);
+        const result = await updateUserHandler({
+            ...data, id: data.id.toString()
+        }, groups)
         await context.reply(textHelp.textGetGroup + dialogsData.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
     } catch (error: any) {
         if (error.code) {
@@ -233,10 +214,13 @@ async function getChannel(context: Context) {
                 message: "Sorry getGroup is not completed!, empty id",
             };
         }
-        client = await connectAsUser(context.from.id);
+        const { data } = await loginHandler(`${context.from.id}`);
+        if (data == undefined) throw {
+            code: 404, message: "data is empty, please login /connect phoneNumber"
+        }
+        client = await connectAsUser(data.session);
         await client.connect();
-
-        const channelDB = getchanelDB(context.from.id);
+        const channelDB = getchanelDB(data);
         if (channelDB.length != 0 && context.match != "update") {
             // check in db
             await client.disconnect();
@@ -245,12 +229,12 @@ async function getChannel(context: Context) {
         }
 
         // create newDialogs in session.js
-        const channels: object[] = [];
+        const channels: any[] = [];
         const dialogs = await client.getDialogs();
         const dialogsData = dialogs.map((dialog) => {
             if (dialog.isChannel) {
                 channels.push({
-                    id: dialog.id,
+                    id: `${dialog.id}`,
                     folderId: Math.abs(parseInt(`${dialog.id}`)),
                     title: dialog.title,
                     isGroup: dialog.isGroup,
@@ -261,7 +245,9 @@ async function getChannel(context: Context) {
         });
 
         // save to storage
-        await SaveStorage.updateDialogs(context.from.id, "session", channels);
+        const result = await updateUserHandler({
+            ...data, id: data.id.toString()
+        }, channels)
         await context.reply(textHelp.textGetChannel + dialogsData.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
     } catch (error: any) {
         if (error.code) {
@@ -283,24 +269,27 @@ async function getUser(context: Context) {
                 message: "Sorry getGroup is not completed!, empty id",
             };
         }
-        client = await connectAsUser(context.from.id);
+        const { data } = await loginHandler(`${context.from.id}`);
+        if (data == undefined) throw {
+            code: 404, message: "data is empty, please login /connect phoneNumber"
+        }
+        client = await connectAsUser(data.session);
         await client.connect();
-
-        const userDB = getUserDB(context.from.id);
+        const userDB = getUserDB(data);
         if (userDB.length != 0 && context.match != "update") {
             // check in db
-            return await context.reply(textHelp.textGetChannel + userDB.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
+            return await context.reply(textHelp.textGetUser + userDB.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
         }
 
         // create newDialogs in session.js
-        const users: object[] = [];
+        const users: any[] = [];
         const dialogs = await client.getDialogs();
         const dialogsData = dialogs.map((dialog) => {
             if (dialog.isUser) {
                 console.log(dialog);
                 
                 users.push({
-                    id: dialog.id,
+                    id: `${dialog.id}`,
                     folderId: Math.abs(parseInt(`${dialog.id}`)),
                     title: dialog.title,
                     isGroup: dialog.isGroup,
@@ -311,8 +300,10 @@ async function getUser(context: Context) {
         });
 
         // save to storage
-        await SaveStorage.updateDialogs(context.from.id, "session", users);
-        await context.reply(textHelp.textGetChannel + dialogsData.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
+        const result = await updateUserHandler({
+            ...data, id: data.id.toString()
+        }, users)
+        await context.reply(textHelp.textGetUser + dialogsData.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
     } catch (error: any) {
         if (error.code) {
             context.reply(error.message);
@@ -328,28 +319,32 @@ async function startObserve(context: Context) {
     if (context.from == undefined) return;
 
     try {
-        // await client.disconnect();
-        const clientUser = await connectAsUser(context.from?.id);
-        await clientUser.connect();
+        client.session.close()
+        const { data } = await loginHandler(`${context.from.id}`);
+        if (data == undefined) throw {
+            code: 404, message: "data is empty, please login /connect phoneNumber"
+        } 
+        const serverProcess = fork('src/commands/worker.ts', [], {
+            env: {
+                ...process.env,
+                IDUser: data.id.toString(),
+                SESSION_STRING: data.session
+            }
+        })
 
-        console.log("auth: " + await clientUser.isUserAuthorized());
-        if (!(await clientUser.isUserAuthorized())) {
-            
-            return
-        };
-        const resultWorker = loadWorkers();
-        if (resultWorker == undefined) {
-            console.log("resultWorker undefined");
-
-            return;
-        }
-        console.log(resultWorker);
-
-        context.api.sendMessage(context.from?.id, "Wait 5s for next message");
-        for (let index = 0; index < resultWorker.length; index++) {
-            await clientChat(context, resultWorker[index], clientUser);
-            console.log("END for");
-        }
+        serverProcess.on('message', (message) => {
+            console.log(`Received message from server process ${serverProcess.pid}: `, message);
+            if (message.toString().includes('kill')) {
+                //   stopWorkerByPID(serverProcess.pid)
+                console.log('Stop Worker: ' + serverProcess.pid);
+            }
+        });
+        serverProcess.on('error', (error) => {
+            console.error(`Error in server process ${serverProcess.pid}:`, error);
+        });
+        serverProcess.on('exit', (code) => {
+            console.log(`Server process ${serverProcess.pid} exited with code ${code}`);
+        });
 
         context.api.sendMessage(context.from?.id, "Okey i'm ready...");
         console.log("END function");
@@ -359,52 +354,7 @@ async function startObserve(context: Context) {
             await context.reply(error.message)
         }
     }
+    return
 }
-
-const clientChat = (context: Context, { to, from, id }, clientUser: TelegramClient): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        setTimeout(resolve, 1000);
-        
-        clientUser.addEventHandler(async (event) => {
-            const message = event.message;
-
-            console.log("include: "+from.includes(event.message.chatId?.toString()));
-
-            if (event.message.chatId?.toString() != id && !from.includes(event.message.chatId?.toString())) {
-                console.log("masuk IF: ", await event.chatId, "  ", id);
-                return;
-            }
-
-            // penyebab kenapa bot tidak mendeteksi pesan group
-            // rencananya adalah ketika group ada pesan maka forward ke user
-            // group => user
-            // console.log(context.message?.contact);
-            
-            if (event.isPrivate && message.senderId != undefined) {
-                const getMev2 = await clientUser.getEntity(message.senderId);
-                console.log(message.senderId, " ", message.message);
-                try {
-                    for (const toChat of to) {
-                        await context.api.sendMessage(
-                            toChat,
-                            `
-                      From: ${getMev2["firstName"]} \n-----\n${message.message}`,
-                        );
-                    }
-                    resolve();
-                } catch (error: any) {
-                    console.log("throw: "+error);
-
-                    if (Number.isInteger(error.error_code)) {
-                        await context.reply(`sepertinya bot belum tergabung didalam [group/channel](https://t.me/c/${Math.abs(to)}/999999999)`, {
-                            parse_mode: "Markdown",
-                        });
-                    }
-                    return reject();
-                }
-            }
-        }, new NewMessage({ fromUsers: from }));
-    });
-};
 
 export { login, logout, getChannel, getUser, getGroup, startObserve, signIn };

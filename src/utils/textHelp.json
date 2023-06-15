@@ -6,6 +6,7 @@
     "phoneNumberInvalid": "Pasikan nomor telpon valid contoh prefix https://en.wikipedia.org/wiki/List_of_mobile_telephone_prefixes_by_country",
     "textGetGroup": "🚫 Please wait a moment, this may take a few minutes. In the meantime, don't send too many similar requests. 🚫\nGroup Title —» ID\n",
     "textGetChannel": "🚫 Please wait a moment, this may take a few minutes. In the meantime, don't send too many similar requests. 🚫\nChannel Title —» ID\n",
+    "textGetUser": "🚫 Please wait a moment, this may take a few minutes. In the meantime, don't send too many similar requests. 🚫\nChannel Title —» ID\n",
     "pleasePrivateChat": "Maaf untuk menggunakan perintah ini harap private chat dengan bot",
     "firstConnection": "**Connect Help Menu**\n\nUse it to connect your account with Auto Forward Message Telegram Bot, You will need at least one connected account with Auto Forward Message Telegram Bot to use other commands\n\nEnter the phone number of the telegram account which is already a member of the desired source chats, along with country code\n\n**Command Arguments**\n/connect PHONE_NUMBER\n\n**For Example:**\n/connect +84444444444\n\nYou can find every country prefix code by\n\nDon't know how to start 🤔🤔🤔? "
 }

@@ -1,4 +1,4 @@
-import { MyContext } from "src/core/bot";
+import { Context } from "grammy/out/context"
 
 class ErrorBot {
     static phoneNotValid = 400
@@ -9,7 +9,7 @@ class ErrorBot {
     static messageIdNotFound = "Error: Internal Server Error...."
     static messageSessionNotFound = "Unauthorized. Please connect with bot, /connect <Phone Number>"
 
-    static errorHandler(ctx: MyContext, error: any) {
+    static errorHandler(ctx: Context, error: any) {
         switch (error.code) {
             case this.phoneNotValid:
                 break;

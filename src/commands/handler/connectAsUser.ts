@@ -1,27 +1,32 @@
 /* eslint-disable prettier/prettier */
-import { SaveStorage } from "../../utils/saveStorage";
+import loginHandler from "../../libs/handler/loginHandler";
+// import { SaveStorage } from "../../utils/saveStorage";
 import { TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions";
+import { lookup } from "ps-node"
 
-const connectAsUser = async (idFromUser: number): Promise<TelegramClient> => {
-    let session = "";
+const checkWorker = async (pid: number) => {
+  lookup({ pid }, (err, resultList) => {
+    if (err) {
+      console.error(err);
+      return
+    }
 
-  const checkSession = SaveStorage.checkSession(idFromUser)[0];
+    const workerProcess = resultList[0]
+    if (workerProcess) {
+      console.log(`Worker process with PID ${workerProcess.pid} is running.`);
+    } else {
+      console.log(`Worker process with PID ${pid} is not running.`);
+    }  
+  })
+}
+
+const connectAsUser = async (session: string): Promise<TelegramClient> => {
+  // let session = "";
+
+  // const checkSession = await loginHandler(`${idFromUser}`);
 
   return new Promise((resolve, reject) => {
-    if (checkSession == undefined) {
-      return reject({
-        code: 404,
-        message:
-          "Session is empty, please registerd \n /connect <phone_number>",
-      });
-    }
-    console.log("idDetec: " + checkSession.session);
-
-    if (checkSession) {
-      session = checkSession.session;
-    }
-
     const client = new TelegramClient(
       new StringSession(session),
       parseInt(`${process.env.APPID}`),

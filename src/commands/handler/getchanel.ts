@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 import { Context } from "grammy";
-import { MyContext } from "../../core/bot";
 import * as textHelp from "../../utils/textHelp.json";
 import { getChannel } from "../middleware";
 
