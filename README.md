@@ -25,6 +25,7 @@ Dikarenakan bot ini adalah auto forward maka daftarkan juga apps ini ke telegram
 > Pastikan Kamu Sudah Mempunyai Atau Menaruh TOKEN Bot Dan API KEY Fitur Lainnya Di Environment (process.env.{nama_env})
     > buat file dengan .env
     > isikan didalamnya dengan
+        NODE_ENV=development
         BOT_TOKEN=<Token Bot>
         APPID=<APPID>
         APPHASH='<APPHASH>'
