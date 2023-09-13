@@ -1,11 +1,13 @@
 import { DocumentData, QuerySnapshot, deleteDoc, getDoc, updateDoc } from "firebase/firestore";
 import { db, collection, doc, getDocs, setDoc, query, where, auth, signInWithEmailAndPassword  } from "./fire";
 import axios from 'axios';
+import dotenv from 'dotenv'
+dotenv.config()
 
 function createRepository() {
     // Inisialisasi Firebase Auth        
-    const email = ""; // Ganti dengan email dan password yang sesuai
-    const password = ""; // Ganti dengan kata sandi yang sesuai
+    const email = `${process.env.YOUR_EMAIL_AUTH}`; // Ganti dengan email dan password yang sesuai
+    const password = `${process.env.YOUR_PASSWORD_AUTH}`; // Ganti dengan kata sandi yang sesuai
     
     async function getUserById(id: string, collectionName: string): Promise<object>{
         // ========= get dataByFieldId
