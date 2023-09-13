@@ -12,6 +12,7 @@ import getgroup from "./handler/getgroup";
 import msg from "./handler/msg"; 
 import logoutUser from "./handler/logout";
 import signInUser from "./handler/signIn";
+import twoFactorAuth from "./handler/twoFactorAuth";
 
 const composer = new Composer();
 
@@ -23,7 +24,9 @@ composer.command("getchanel", getchanel);
 composer.command("getuser", getuser);
 composer.command("getgroup", getgroup);
 composer.command("forward", forward);
+composer.command("settings", forward);
 composer.hears(/mycode\d+/, signInUser)
+composer.hears(/^mypass:/i, twoFactorAuth)
 composer.hears(/^worker=.*/, async (ctx) => await deleteForward(ctx, undefined));
 
 composer.on("msg", msg);

@@ -1,8 +1,7 @@
 /* eslint-disable prettier/prettier */
 import insertForwardHandler from "../libs/handler/insertForwardHandler";
-import getAllForwardByIdHandler from "../libs/handler/getAllForwardByIdHandler"
+import { getAllForwardByIdHandler } from "../libs/handler/getAllForwardByIdHandler"
 import { SaveStorage } from "./saveStorage"
-import getAllFromIdForwardHandler from "../libs/handler/getAllFromIdForwardHandler";
 
 /**
  * Session Manajemen for forward ID and more
@@ -24,17 +23,10 @@ const getAllForwardById = async(idFromUser: string) => {
     return resultAllWorkers.data
 }
 
-const resultSplitId = (argAction: string, argLabel: string, argCommand: string) => {
+const resultSplitId = (from: string, to: string) => {
     /**
      * argCommand => /forward add worker1 <IdFrom> -> <IdTo>
      */
-    const lenActionAndLabel = argAction.length + argLabel.length
-    const forwardChatId = argCommand.slice(lenActionAndLabel + 1, argCommand.length)
-    const from = forwardChatId.split("->")[0].trim();
-    const to = forwardChatId.split("->")[1].trim();
-    console.log(from, " <= from");
-    console.log(to, " <= to");
-    
     const froms = from.split(',');
     const toMany = to.split(',');
 
@@ -42,7 +34,7 @@ const resultSplitId = (argAction: string, argLabel: string, argCommand: string) 
 }
 
 const loadWorkers = async (fromId: string) => {
-    const resultWorker = await getAllFromIdForwardHandler(fromId)
+    const resultWorker = await getAllForwardByIdHandler(fromId)
     return resultWorker
 }
 

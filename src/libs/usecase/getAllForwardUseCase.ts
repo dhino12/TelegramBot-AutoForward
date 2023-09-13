@@ -1,4 +1,4 @@
-async function getAllFromIdForwardUseCase(id: string, { repository, hasher }): Promise<{
+async function getAllForwardUseCase(from:string|undefined, { repository, hasher }): Promise<{
     code: number,
     data: {
         from: [],
@@ -9,7 +9,7 @@ async function getAllFromIdForwardUseCase(id: string, { repository, hasher }): P
     }[],
     message: string
 }> {
-    const dataForwards = await repository.getAllFromIdForward(id, "forwardWorker")
+    const dataForwards = await repository.getAllForwards(from)
     
     return {
         code: 200,
@@ -18,4 +18,4 @@ async function getAllFromIdForwardUseCase(id: string, { repository, hasher }): P
     }
 }
 
-export default getAllFromIdForwardUseCase
+export default getAllForwardUseCase

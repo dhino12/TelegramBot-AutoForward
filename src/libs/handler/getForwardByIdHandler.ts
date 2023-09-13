@@ -21,4 +21,3 @@ async function getForwardByIdHandler(id: string): Promise<{
     return session
 }
 
-export default getForwardByIdHandler

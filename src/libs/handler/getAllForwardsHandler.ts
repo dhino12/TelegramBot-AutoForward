@@ -1,8 +1,8 @@
 import { createRepository } from "../../db/repositories";
 import createHasher from "../hasher/bcrypt";
-import getAllFromIdForwardUseCase from "../usecase/getAllFromIdForwardUseCase";
+import getAllForwardUseCase from "../usecase/getAllForwardUseCase";
 
-async function getAllFromIdForwardHandler(id: string): Promise<{
+async function getAllForwardsHandler(from = ""): Promise<{
     code: number,
     data: {
         from: [],
@@ -16,9 +16,9 @@ async function getAllFromIdForwardHandler(id: string): Promise<{
     const hasher = createHasher()
     const repository = createRepository()
 
-    const forwards = await getAllFromIdForwardUseCase(id, { repository, hasher })
+    const forwards = await getAllForwardUseCase(from, { repository, hasher })
     
     return forwards
 }
 
-export default getAllFromIdForwardHandler
+export default getAllForwardsHandler

@@ -36,8 +36,9 @@ class Converstation {
     async start() {
         const conversation = conversations[this.chatId];
         const message = this.ctx.message?.text
+        const slug = message?.includes("mycode", 0) || message?.includes("mypass:", 0) || message?.includes("worker=", 0)
 
-        if (message != undefined && message.includes("mycode", 0)) {
+        if (message != undefined && slug) {
             console.log("Ini adalah langkah pertama.");
             conversation.mycode = message;
             

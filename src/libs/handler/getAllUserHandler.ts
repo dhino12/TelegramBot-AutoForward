@@ -1,24 +1,24 @@
 import { createRepository } from "../../db/repositories";
 import createHasher from "../hasher/bcrypt";
-import getAllForwardByIdUseCase from "../usecase/getAllForwardByIdUseCase";
+import getAllUserUseCase from "../usecase/getAllUserUseCase";
 
-async function getAllForwardByIdHandler(id: string): Promise<{
+async function getAllUserHandler(): Promise<{
     code: number,
     data: {
-        from: [],
-        to: [],
+        idDocument: string,
         id: string,
+        isBot: boolean,
         name: string,
-        worker: string,
+        session: '',
     }[],
     message: string
 }> {
     const hasher = createHasher()
     const repository = createRepository()
 
-    const forwards = await getAllForwardByIdUseCase(id, { repository, hasher })
+    const forwards = await getAllUserUseCase({ repository, hasher })
     
     return forwards
 }
 
-export {getAllForwardByIdHandler}
+export default getAllUserHandler
