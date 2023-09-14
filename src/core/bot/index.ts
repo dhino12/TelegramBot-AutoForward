@@ -1,16 +1,9 @@
-import { Bot, Context, session } from "grammy";
-import { type Conversation, type ConversationFlavor, conversations } from "@grammyjs/conversations";
-
-type MyContext = Context & ConversationFlavor;
-type MyConversation = Conversation<MyContext>;
+import { Bot } from "grammy";
 
 const bot = new Bot(String(process.env.BOT_TOKEN));
 
-// bot.use(session({ initial: () => ({}) }));
-// bot.use(conversations());
-
 bot.init()
-    .then((client) => {
+    .then((ctx) => {
         console.log(`Berhasil masuk sebagai ${bot.botInfo.username} - ${bot.botInfo.id}`);
     })
     .catch((err) => console.error(err));
@@ -25,9 +18,9 @@ bot.api.setMyCommands([
 ]);
 
 bot.catch((ctx) => {
-    console.error("Error Bot");
-    console.log(ctx);
-    
+    console.error("Error Bot: " + ctx.message);
+    console.error("===========================");
+    // console.log(ctx);
 })
 
-export { bot, MyContext, MyConversation };
+export { bot };

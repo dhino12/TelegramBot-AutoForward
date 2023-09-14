@@ -1,0 +1,35 @@
+{
+    col=1.0, 
+    body={
+        nama={
+            data=[nama, Hasanudin H Syafaat, , , ], 
+            row=2.0
+        }, 
+        pi+ng={
+            row=4.0, 
+            data=[pi+ng, poong, , , ]
+        }, 
+        h+[ae]+i+={
+            data=[h+[ae]+i+, hai juga, , , ], 
+            row=5.0
+        }, 
+        nomor={
+            data=[nomor, 6.281234567E9, , , ], 
+            row=6.0
+        }, 
+        panggilan={
+            data=[panggilan, bangHasan, , , ], 
+            row=3.0
+        }
+    }, range=Range
+}
+
+{
+    pos=A2, 
+    regex={}, 
+    match=[nama], 
+    data=[nama, Hasanudin H Syafaat, , , ], 
+    row=2.0, 
+    col=1.0, 
+    range=Range
+}

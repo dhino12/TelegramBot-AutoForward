@@ -1,15 +1,15 @@
 /* eslint-disable prettier/prettier */
+import insertForwardHandler from "../libs/handler/insertForwardHandler";
+import { getAllForwardByIdHandler } from "../libs/handler/getAllForwardByIdHandler"
 import { SaveStorage } from "./saveStorage"
 
 /**
  * Session Manajemen for forward ID and more
  */
-const checkWorker = (label: string, idFromUser: number) => {
-    const filePath = SaveStorage.checkFileSessionExist("forwardWorker")
-    const workers = SaveStorage.loadSession(filePath)
-
-    const findSameWorkers = workers.filter(({ worker, id }) => {
-        return worker === label && id == idFromUser
+const checkWorker = async (label: string, idFromUser: number) => {
+    const resultAllWorker = await getAllForwardByIdHandler(idFromUser.toString())
+    const findSameWorkers = resultAllWorker.data.filter(({ worker, id }) => { 
+        return worker === label && id == idFromUser.toString()
     })[0];
 
     if (findSameWorkers) {
@@ -18,32 +18,30 @@ const checkWorker = (label: string, idFromUser: number) => {
     return false;
 }
 
-const resultSplitId = (argAction: string, argLabel: string, argCommand: string) => {
+const getAllForwardById = async(idFromUser: string) => {
+    const resultAllWorkers = await getAllForwardByIdHandler(idFromUser)
+    return resultAllWorkers.data
+}
+
+const resultSplitId = (from: string, to: string) => {
     /**
      * argCommand => /forward add worker1 <IdFrom> -> <IdTo>
      */
-    const lenActionAndLabel = argAction.length + argLabel.length
-    const forwardChatId = argCommand.slice(lenActionAndLabel + 1, argCommand.length)
-    const from = forwardChatId.split("->")[0].trim();
-    const to = forwardChatId.split("->")[1].trim();
-    console.log(from, " <= from");
-    console.log(to, " <= to");
-
     const froms = from.split(',');
     const toMany = to.split(',');
 
     return { froms, toMany };
 }
 
-const loadWorkers = () => {
-    const filePath = SaveStorage.checkFileSessionExist('forwardWorker')
-    const workers = SaveStorage.loadSession(filePath)
-    
-    return workers
+const loadWorkers = async (fromId: string) => {
+    const resultWorker = await getAllForwardByIdHandler(fromId)
+    return resultWorker
 }
 
-const saveToStorage = (forwardInfo: any) => {
-    return SaveStorage.set(forwardInfo, 'forwardWorker')
+const saveToStorage = async (forwardInfo: any) => {
+    const result = await insertForwardHandler(forwardInfo)
+    if (result.code == 201) return true
+    return false
 }
 
-export { resultSplitId, saveToStorage, loadWorkers, checkWorker }
+export { resultSplitId, saveToStorage, loadWorkers, checkWorker, getAllForwardById }

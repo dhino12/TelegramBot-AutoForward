@@ -7,14 +7,18 @@ import { SaveStorage } from "../../utils/saveStorage";
  * @method This is useful for fetching a user from 
  * the database and displaying it to the user
  */
-function getchanelDB(idFromUser: number): string[] {
-    const checkSession = SaveStorage.checkSession(idFromUser)[0]
-    if (checkSession == undefined)
+function getchanelDB(data: {
+    id: number, name: string, session: string, dialogs: {
+        id: string, folderId: number, 
+        title: string, isGroup: boolean, isChannel: boolean
+    }[], isBot: boolean
+} | undefined): string[] {
+    if (data == undefined)
         throw {
             code: 404,
             message: 'Sepertinya anda belum login, gunakan /connect untuk login'
         }
-    const searchGroup = checkSession.dialogs.filter(
+    const searchGroup = data.dialogs.filter(
         ({isChannel}) => isChannel  == true
     )
     console.log(searchGroup);
@@ -32,16 +36,20 @@ function getchanelDB(idFromUser: number): string[] {
  * @method This is useful for fetching a user from 
  * the database and displaying it to the user
  */
-function getgroupDB(idFromUser: number): string[] {
-    const checkSession = SaveStorage.checkSession(idFromUser)[0]
-    if (checkSession == undefined)
+function getgroupDB(data: {
+    id: number, name: string, session: string, dialogs: {
+        id: string, folderId: number, 
+        title: string, isGroup: boolean, isChannel: boolean
+    }[], isBot: boolean
+} | undefined): string[] {
+    if (data == undefined)
         throw {
             code: 404,
             message: 'Sepertinya anda belum login, gunakan /connect untuk login'
         }
-        
-    const searchGroup = checkSession.dialogs.filter(
-        ({ isGroup }) => isGroup == true
+    
+    const searchGroup = data.dialogs.filter(
+        ({ isGroup, isChannel }) => isGroup == true && isChannel == false
     )
     if (searchGroup.length == 0) {
         return []
@@ -57,14 +65,18 @@ function getgroupDB(idFromUser: number): string[] {
  * @method This is useful for fetching a user from 
  * the database and displaying it to the user
  */
-function getUserDB(idFromUser: number): string[] {
-    const checkSession = SaveStorage.checkSession(idFromUser)[0]
-    if (checkSession == undefined)
+function getUserDB(data: {
+    id: number, name: string, session: string, dialogs: {
+        id: string, folderId: number, 
+        title: string, isGroup: boolean, isChannel: boolean
+    }[], isBot: boolean
+} | undefined): string[] {
+    if (data == undefined)
         throw {
             code: 404,
             message: 'Sepertinya anda belum login, gunakan /connect untuk login'
         }
-    const searchPrivateChat = checkSession.dialogs.filter(
+    const searchPrivateChat = data.dialogs.filter(
         ({isGroup, isChannel}) => isGroup == false && isChannel == false
     )
     if (searchPrivateChat.length == 0) {
