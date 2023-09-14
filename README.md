@@ -22,7 +22,7 @@ Clone this project with git, previously download git, and nodejs, search on goog
 ### Install All Package
 > npm i
 
-### Cara menggunakan
+### How to Used
 Before using it, you can make a bot first with [botFather](https://t.me/botfather) read how to make it and get the Bot TOKEN [Telegram Bot](https://core.telegram.org/bots#how-do-i-create-a-bot) <br>
 Because this bot is an auto forward, also register this app to telegram here [myTelegram](https://my.telegram.org/auth)
 ```
