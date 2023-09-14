@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import insertForwardHandler from "../libs/handler/insertForwardHandler";
 import { getAllForwardByIdHandler } from "../libs/handler/getAllForwardByIdHandler"
-import { SaveStorage } from "./saveStorage"
 
 /**
  * Session Manajemen for forward ID and more
