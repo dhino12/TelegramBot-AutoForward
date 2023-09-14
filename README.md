@@ -2,9 +2,9 @@
 
 > [Documentation in Indonesian](https://docs-v1.gitbook.io/autoforward-id/) 🇮🇩
 
-You can use this BOT to gather messages from various Telegram chats (private/public channels, private/public groups, direct chats) and send them to one or multiple chat locations.<br><br>
+You can use this BOT to gather messages from various Telegram chats (private/public channels, private/public groups, direct chats) and send them to one or multiple chat locations.<br>
 
-Initially, the bot was made just for myself, but I am also very open if this bot is developed by more people and share views on this ✨, sorry due to the lack of free services to deploy I cannot share the bot's running telegram account, but I share how to deploy this bot into hosting until it runs<br><br>
+Initially, the bot was made just for myself, but I am also very open if this bot is developed by more people and share views on this ✨, sorry due to the lack of free services to deploy I cannot share the bot's running telegram account, but I share how to deploy this bot into hosting until it runs<br>
 
 ⚠ Documentation is still a work in progress ⚠ <br>
 📃 Documentation: [https://docs-v1.gitbook.io/autoforward-en](https://docs-v1.gitbook.io/autoforward-en)
