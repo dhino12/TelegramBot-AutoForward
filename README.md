@@ -1,95 +1,67 @@
-# grammY Vercel boilerplate
+# TelegramBot-AutoForward
 
-https://api.telegram.org/bot6167635401:AAH0tZ7-qoKq8RMCoB-LcHOXEffkLrbVaXE/setWebhook?url=https://grammy-vercel-boilerplate-hfsqhjm8f-dhino12.vercel.app/api/index.ts
+> [Documentation in Indonesian](https://docs-v1.gitbook.io/autoforward-id/) 🇮🇩
 
-https://www.cyclic.sh/posts/how-to-build-a-telegram-bot/
-https://medium.com/purwadhikaconnect/membangun-full-stack-application-dengan-firebase-cloud-firestore-1f9426ee8b9b
-https://t.me/<YOUR USERNAME>
-[grammY](https://grammy.dev/) boilerplate to develop and host telegram bots on [Vercel](https://vercel.com/).
+You can use this BOT to gather messages from various Telegram chats (private/public channels, private/public groups, direct chats) and send them to one or multiple chat locations.<br><br>
 
-## Features
+Initially, the bot was made just for myself, but I am also very open if this bot is developed by more people and share views on this ✨, sorry due to the lack of free services to deploy I cannot share the bot's running telegram account, but I share how to deploy this bot into hosting until it runs<br><br>
 
--   Typescript support
--   Linting and formatting preconfigured
--   Development friendly environment with Nodemon
+⚠ Documentation is still a work in progress ⚠ <br>
+📃 Documentation: [https://docs-v1.gitbook.io/autoforward-en](https://docs-v1.gitbook.io/autoforward-en)
 
-## Development
+## ❇ Here Are My Features ❇
+- User-friendly Dashboard
+- Forwards chats (public or private)
+- Next Feature ? Ongoing 😁
 
-```bash
-# Copy the .env example and change the BOT_TOKEN to match yours
-$ cp .env.example .env
-# Install the dependencies
-$ npm install
-# Run the development environment
-$ npm run dev
+## Running on local
+Clone this project with git, previously download git, and nodejs, search on google
+
+> git clone https://github.com/dhino12/TelegramBot-AutoForward.git
+
+### Install All Package
+> npm i
+
+### Cara menggunakan
+Before using it, you can make a bot first with [botFather](https://t.me/botfather) read how to make it and get the Bot TOKEN [Telegram Bot](https://core.telegram.org/bots#how-do-i-create-a-bot) <br>
+Because this bot is an auto forward, also register this app to telegram here [myTelegram](https://my.telegram.org/auth)
 ```
-
-## Deployment
-
-## Error Session 
-Error session ini terjadi pada saat deployment di cyclic sampai saat ini saya atau khususnya kami masih belum mengatahuinya, selengkapnya dapat dibaca dibawah
-https://grammy.dev/plugins/session.html#session-keys
-
-Pada saat deploy disarankan menggunakan Long pooling
-https://grammy.dev/id/guide/deployment-types.html
-
-https://api.telegram.org/bot6167635401:AAGKaDL5agG7OseIRi860a64D_KQvNrMfBI/setWebhook?url=https://fancy-hare-waistcoat.cyclic.app/
-#### Terminal
-
-```bash
-# Install vercel cli if you don't have it yet
-$ npm i -g vercel
-# Deploy the project
-$ vercel --prod
+> Make sure you already have or put the Bot TOKEN and other feature API KEY in the environment (process.env.{name_env})
+    > create a file .env
+    > fill in the field with
+        NODE_ENV=development
+        BOT_TOKEN=<Token Bot>
+        APPID=<APPID>
+        APPHASH='<APPHASH>'
+> If so, run the bot with npm run dev
+> to convert all code into javascript you can use `npm run build`.
 ```
-<div class="warning" style='background-color:#D9D8FD; color: #69337A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
-<span>
-<p style='margin-top:1em; text-align:center'>
-<b>On the importance of sentence length</b></p>
-<p style='margin-left:1em;'>
-This sentence has five words. Here are five more words. Five-word sentences are fine. But several together bocome monotonous. Listen to what is happening. The writing is getting boring. The sound of it drones. It's like a stuck record. The ear demands some variety.<br><br>
-    Now listen. I vary the sentence length, and I create music. Music. The writing sings. It has a pleasent rhythm, a lilt, a harmony. I use short sentences. And I use sentences of medium length. And sometimes when I am certain the reader is rested, I will engage him with a sentence of considerable length, a sentence that burns with energy and builds with all the impetus of a crescendo, the roll of the drums, the crash of the cymbals -- sounds that say listen to this, it is important.
-</p>
-<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- Gary Provost</b> <i>(100 Ways to Improve Your Writing, 1985)</i>
-</p></span>
-</div>
-#### Vercel
+👉 Need detailed documentation? [Here's how to use this bot](https://docs-v1.gitbook.io/autoforward-en/overview/how-to-connect)
 
-On your project's page, go to Settings > Environment Variables and add the following variables:
+## Fitur
 
-| Name        | Value            |
-| ----------- | ---------------- |
-| `BOT_TOKEN` | _your bot token_ |
+| Menu      | Fitur             | Deskripsi                   |
+| --------- | ----------------- | --------------------------- |
+| ✅        | getuser           | GET ID - Name User  |
+| ✅        | getgroup          | GET ID - Name Group |
+| ✅        | getchannel        | GET ID - Name Channel |
+| ✅        | forward           | Setup auto forward          |
+| ✅        | connect           | Setup Account                  |
 
-> You can also set the webhook URL manually accessing `https://api.telegram.org/bot<bot_token>/setWebhook?url=<webhook_url>` on your browser
+**Penggunaan Worker** <br>
+https://medium.com/@Trott/using-worker-threads-in-node-js-80494136dbb6
+<br><br>
 
-Finally, you should see a "Hello, world!" from the bot when typing `/hello` in chat.
+**menu-button** <br>
+https://core.telegram.org/bots/features#commands
+<br><br>
 
-## Using Express instead of Vercel's API
+## Video penggunaan
 
-By default `grammy-vercel-boilerplate` does not use extra dependencies, but in case you want to use Express, first add it as a dependency
+[![Tutorial](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/eLiNNm7Nco0) <br>
 
-```sh
-$ npm install express
-```
-
-And then edit the contents of `api/index.ts` to
-
-```js
-require("../src/index");
-
-import express from "express";
-import { webhookCallback } from "grammy";
-
-import bot from "../src/core/bot";
-
-const app = express();
-
-app.use(express.json());
-app.use(`/api/index`, webhookCallback(bot));
-
-export default app;
-```
+how to run this bot on local server (personal computer) ?<br>
+[![Tutorial](https://img.shields.io/badge/Youtube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/wUE9niX0Isc)
 
 ## Contributing
 
