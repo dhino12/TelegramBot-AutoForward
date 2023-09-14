@@ -14,6 +14,16 @@ Initially, the bot was made just for myself, but I am also very open if this bot
 - Forwards chats (public or private)
 - Next Feature ? Ongoing 😁
 
+## ⚙ Command List ⚙
+
+| Menu      | Fitur             | Deskripsi                   |
+| --------- | ----------------- | --------------------------- |
+| ✅        | getuser           | GET ID - Name User  |
+| ✅        | getgroup          | GET ID - Name Group |
+| ✅        | getchannel        | GET ID - Name Channel |
+| ✅        | forward           | Setup auto forward          |
+| ✅        | connect           | Setup Account                  |
+
 ## Running on local
 Clone this project with git, previously download git, and nodejs, search on google
 
@@ -36,17 +46,7 @@ Because this bot is an auto forward, also register this app to telegram here [my
 > If so, run the bot with npm run dev
 > to convert all code into javascript you can use `npm run build`.
 ```
-👉 Need detailed documentation? [Here's how to use this bot](https://docs-v1.gitbook.io/autoforward-en/running-app/how-to-run-this-bot-in-local)
-
-## Fitur
-
-| Menu      | Fitur             | Deskripsi                   |
-| --------- | ----------------- | --------------------------- |
-| ✅        | getuser           | GET ID - Name User  |
-| ✅        | getgroup          | GET ID - Name Group |
-| ✅        | getchannel        | GET ID - Name Channel |
-| ✅        | forward           | Setup auto forward          |
-| ✅        | connect           | Setup Account                  |
+👉 Need detailed documentation? [Here's how to use this bot](https://docs-v1.gitbook.io/autoforward-en/running-app/how-to-run-this-bot-in-local) <br>
 
 **Penggunaan Worker** <br>
 https://medium.com/@Trott/using-worker-threads-in-node-js-80494136dbb6
