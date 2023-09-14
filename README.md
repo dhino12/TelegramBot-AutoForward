@@ -36,7 +36,7 @@ Because this bot is an auto forward, also register this app to telegram here [my
 > If so, run the bot with npm run dev
 > to convert all code into javascript you can use `npm run build`.
 ```
-👉 Need detailed documentation? [Here's how to use this bot](https://docs-v1.gitbook.io/autoforward-en/overview/how-to-connect)
+👉 Need detailed documentation? [Here's how to use this bot](https://docs-v1.gitbook.io/autoforward-en/running-app/how-to-run-this-bot-in-local)
 
 ## Fitur
 
