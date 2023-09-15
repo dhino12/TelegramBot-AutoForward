@@ -27,9 +27,14 @@ const callback_query = async (ctx: Context): Promise<void> => {
         case 'getAllForward':
             const getForwards = await getAllForwardById(`${ctx.from?.id}`)
             let strForwards = "**⏰ Your Forwards List ⏰**\nHere is the list of workers / tasks that you have added\n"
-            strForwards += getForwards.map(item => {
-                return `=======\nid: ${item.id}\nworkerName: ${item.worker}\nname: ${item.name}\nfrom: [ ${item.from.map(fromForward => `[${fromForward}](https://t.me/c/${Math.abs(fromForward)}/999999999)`)} ]\nto: [ ${item.to.map(toForward => `[${toForward}](https://t.me/c/${Math.abs(toForward)}/999999999)`)} ]\n\n`
-            }).toString()
+            if (getForwards.length != 0) {
+                strForwards += getForwards.map(item => {
+                    return `=======\nid: ${item.id}\nworkerName: ${item.worker}\nname: ${item.name}\nfrom: [ ${item.from.map(fromForward => `[${fromForward}](https://t.me/c/${Math.abs(fromForward)}/999999999)`)} ]\nto: [ ${item.to.map(toForward => `[${toForward}](https://t.me/c/${Math.abs(toForward)}/999999999)`)} ]\n\n`
+                }).toString()
+            } else {
+                strForwards += "\n === Task is Empty ==="
+            }
+            
             updatedKeyboard.text("🗑 Delete Forward", "deleteForward").row()
             updatedKeyboard.text("<< Back", "setting_forward")
             await ctx.editMessageText(toMarkdownV2(strForwards.replace(",", "")), {

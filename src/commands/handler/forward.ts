@@ -43,6 +43,7 @@ const forward = async (ctx: Context): Promise<void> => {
         }
         
         if (argAction.includes("add", 0)) {
+            await ctx.reply("⚠ Please wait Starting Task....")
             const lenActionAndLabel = argAction.length + argLabel.length
             const forwardChatId = argCommand.slice(lenActionAndLabel + 1, argCommand.length)
             const from = forwardChatId.split("->")[0].trim();
@@ -53,6 +54,7 @@ const forward = async (ctx: Context): Promise<void> => {
         }
 
         if (argAction.includes("remove", 0)) {
+            await ctx.reply("⚠ Please wait Starting Task....")
             await deleteForward(ctx, argLabel)
             await startTaskById(ctx)
             return;
