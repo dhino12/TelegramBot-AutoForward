@@ -3,7 +3,7 @@ import { Bot } from "grammy";
 const bot = new Bot(String(process.env.BOT_TOKEN));
 
 bot.init()
-    .then((ctx) => {
+    .then(() => {
         console.log(`Berhasil masuk sebagai ${bot.botInfo.username} - ${bot.botInfo.id}`);
     })
     .catch((err) => console.error(err));
