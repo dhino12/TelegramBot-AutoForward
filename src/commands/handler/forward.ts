@@ -88,7 +88,9 @@ const addForward = async (ctx:Context, {argLabel, from, to}) => {
     }
 
     if (await checkWorker(argLabel, ctx.from.id)) {
-        await ctx.reply("Worker sudah tersedia");
+        await ctx.reply(`Worker with label **${argLabel}** is all ready used`, {
+            parse_mode: "Markdown"
+        });
         return 
     }
 
@@ -103,7 +105,7 @@ const addForward = async (ctx:Context, {argLabel, from, to}) => {
     });
 
     if (result) {
-        ctx.reply(`Worker Berhasil di simpan`);
+        ctx.reply(`Worker Successfully Saved`);
         await ctx.reply(toMarkdownV2(textHelp.forwardSuccessfullyAdded + `\nNama: **${argLabel}**\nFrom: **${from}**\nto: **${to}**`), {
             parse_mode: "MarkdownV2"
         })
