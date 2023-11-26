@@ -1,7 +1,7 @@
 import { DocumentData, QuerySnapshot, deleteDoc, getDoc, updateDoc } from "firebase/firestore";
 import { db, collection, doc, getDocs, setDoc, query, where, auth, signInWithEmailAndPassword  } from "./fire";
-import axios from 'axios';
-import dotenv from 'dotenv'
+import axios from "axios";
+import dotenv from "dotenv"
 dotenv.config()
 
 function createRepository() {
