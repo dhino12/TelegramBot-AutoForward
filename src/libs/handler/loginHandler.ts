@@ -8,7 +8,7 @@ async function loginHandler(id: string): Promise<{
         id: number, name: string, session: string, dialogs: {
             id: string, folderId: number, 
             title: string, isGroup: boolean, isChannel: boolean
-        }[], isBot: boolean
+        }[], isBot: boolean, pid: number | undefined
     } | undefined,
     message: string
 }> {

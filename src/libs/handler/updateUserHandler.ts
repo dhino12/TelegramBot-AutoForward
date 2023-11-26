@@ -6,7 +6,7 @@ async function updateUserHandler(body: {
     id: string, name: string, session: string, dialogs: {
         id: string, folderId: number, 
         title: string, isGroup: boolean, isChannel: boolean
-    }[], isBot: boolean,
+    }[], isBot: boolean, pid: number | undefined
 }, dialogs: any[]): Promise<{
     code: number,
     data: {

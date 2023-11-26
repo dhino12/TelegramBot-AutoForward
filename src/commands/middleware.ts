@@ -1,19 +1,21 @@
 import { Api, TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions";
 import * as dotenv from "dotenv";
+import { Context } from "grammy";
+import { ChildProcess, fork } from "child_process";
 import connectAsUser from "./handler/connectAsUser";
 import validator from "validator";
-import { NewMessage } from "telegram/events";
 import textHelp from "../utils/textHelp.json";
 import { getUserDB, getchanelDB, getgroupDB } from "./handler/dialogs";
-import { Context } from "grammy";
 import Converstation from "./handler/converstation";
-import getAllFromIdForwardHandler from "../libs/handler/getAllFromIdForwardHandler";
 import registerHandler from "../libs/handler/registerHandler";
-import loginHandler from "../libs/handler/loginHandler"
 import updateUserHandler from "../libs/handler/updateUserHandler";
-import deleteUserHandler from "../libs/handler/deleteUserHandler"; 
-import { fork } from "child_process";
+import deleteUserHandler from "../libs/handler/deleteUserHandler";
+import getAllUserHandler from "../libs/handler/getAllUserHandler";
+import loginHandler from "../libs/handler/loginHandler";
+import { addPidHandler, getPidByIdHandler, updatePidHandler } from "../libs/handler/pidHandler";
+import { getAllForwardByIdHandler } from "../libs/handler/getAllForwardByIdHandler";
+import getAllForwardsHandler from "../libs/handler/getAllForwardsHandler";
 dotenv.config();
 
 let client = new TelegramClient(new StringSession(""), parseInt(`${process.env.APPID}`), `${process.env.APPHASH}`, {
@@ -23,33 +25,52 @@ let client = new TelegramClient(new StringSession(""), parseInt(`${process.env.A
 let authentication = {
     phoneCodeHash: "",
     phoneNumber: "",
-    isCodeViaApp: false
-}
+    isCodeViaApp: false,
+};
 
 async function askPhoneCode(context: Context): Promise<string> {
     try {
         if (context.from?.id == undefined || context.chat == undefined) return "";
-        const converstation = new Converstation(context)
-        const dataUser = await converstation.start()
-        if (dataUser != undefined) { 
+        const converstation = new Converstation(context);
+        const dataUser = await converstation.start();
+        if (dataUser != undefined) {
             const phoneCode = dataUser["mycode"].toLowerCase().replace("mycode", "").trim();
-            await converstation.end()
+            await converstation.end();
             return phoneCode;
         }
     } catch (error) {
         console.error(error);
         throw error;
     }
-    return ""
+    return "";
+}
+
+async function askPassword(context: Context): Promise<string> {
+    try {
+        if (context.from?.id == undefined || context.chat == undefined) return "";
+        const converstation = new Converstation(context);
+        const dataUser = await converstation.start();
+        if (dataUser != undefined) {
+            console.log(dataUser);
+
+            const password2FA = dataUser["mycode"].toLowerCase().replace("mypass:", "").trim();
+            await converstation.end();
+            return password2FA;
+        }
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+    return "";
 }
 
 async function login(context: Context) {
     if (context.from?.id == undefined || context.chat == undefined) return;
 
-    const checkSession = await loginHandler(`${context.from.id}`)
-    
+    const checkSession = await loginHandler(`${context.from.id}`);
+
     if (checkSession.data != undefined) {
-        await startObserve(context);
+        await startTaskById(context);
         return checkSession;
     }
 
@@ -59,7 +80,7 @@ async function login(context: Context) {
         console.log("PhoneNumber has ", phoneNumber);
         throw {
             code: 404,
-            message: "Ooops PhoneNumber is notValid,\nplease follow /connect <phoneNumber>",
+            message: textHelp.phoneNumberInvalid,
         };
     }
     const auth = await client.sendCode(
@@ -69,26 +90,25 @@ async function login(context: Context) {
         },
         `${phoneNumber}`,
     );
-    if (phoneNumber == undefined) return
+    if (phoneNumber == undefined) return;
 
     const dataAuth = {
         phoneNumber: phoneNumber.toString(),
         phoneCodeHash: auth.phoneCodeHash,
         isCodeViaApp: auth.isCodeViaApp,
-    }
-    
-    authentication = dataAuth
+    };
+
+    authentication = dataAuth;
 
     setTimeout(async () => {
-        try {
-            if (!(await loginHandler(`${context.from?.id}`)).data) {
-                await client.disconnect()
-                // await startObserve(context)
-                await context.reply("time has expired from the timeout of 60 seconds, please repeat the command /connect <PhoneNumber>")
+        if (!(await loginHandler(`${context.from?.id}`)).data) {
+            await client.disconnect();
+            throw {
+                code: 401,
+                message: textHelp.timeout,
+                id: context.from?.id
             }
-        } catch (error) {
-            throw error
-        }   
+        }
     }, 60000);
     return;
 }
@@ -99,25 +119,78 @@ async function signIn(context: Context) {
 
     if (phoneCode == "") {
         console.log("phoneCode : ", phoneCode);
-        return
+        return;
     }
+    
+    setTimeout(async () => {
+        if (!(await loginHandler(`${context.from?.id}`)).data) {
+            await client.disconnect();
+            throw {
+                code: 401,
+                message: textHelp.timeOut2FA,
+                id: context.from?.id
+            }
+        }
+    }, 60000);
+    console.log("====== authentication SIGNIN ========== ");
+    console.log("Authentication Successful");
     await client.invoke(
         new Api.auth.SignIn({
             phoneNumber: `${authentication["phoneNumber"]}`,
             phoneCodeHash: authentication.phoneCodeHash,
             phoneCode: phoneCode.toString(),
         }),
-    ); 
+    );
+
     const result = await registerHandler({
         id: `${context.from.id}`,
         name: context.from.first_name,
         session: client.session.save(),
         dialogs: [],
         isBot: context.from.is_bot,
-    })
-    await client.disconnect()
+    });
+    await client.disconnect();
 
-    await startObserve(context);
+    await startTaskById(context);
+    return result;
+}
+
+async function twoFactorAuthentication(context: Context) {
+    if (context.from?.id == undefined || context.chat == undefined) return;
+
+    const password = await askPassword(context);
+    if (password == "") {
+        console.error("Password 2FA: NULL");
+        return;
+    }
+    await client.signInWithPassword(
+        {
+            apiId: parseInt(`${process.env.APPID}`),
+            apiHash: `${process.env.APPHASH}`,
+        },
+        {
+            password: async (hint) => {
+                return password;
+            },
+            onError: function (err: Error): void | Promise<boolean> {
+                console.log("==== 2FA Error ====");
+                console.log(err);
+
+                throw new Error("Please run /connect <phone_number>.");
+            },
+        },
+    );
+
+    const result = await registerHandler({
+        id: `${context.from.id}`,
+        name: context.from.first_name,
+        session: client.session.save(),
+        dialogs: [],
+        isBot: context.from.is_bot,
+    });
+    await client.disconnect();
+
+    await startTaskById(context);
     return result;
 }
 
@@ -129,11 +202,11 @@ async function logout(context: Context) {
                 message: "Sorry getGroup is not completed!, empty id",
             };
         }
-        
+
         const result = await deleteUserHandler(`${context.from.id}`);
         if (result.code == 204) {
             context.reply("Session Berhasil dihapus", {
-                reply_to_message_id: context.message.message_id
+                reply_to_message_id: context.message.message_id,
             });
         } else {
             context.reply("Ooopss sepertinya anda belum login");
@@ -142,219 +215,229 @@ async function logout(context: Context) {
         console.error(error);
     }
 
-    await client.disconnect()
+    await client.disconnect();
     return;
 }
 
 async function getGroup(context: Context) {
-    try {
-        await client.disconnect();
-        if (context.from == undefined) {
-            throw {
-                code: 404,
-                message: "Sorry getGroup is not completed!, empty id",
-            };
-        }
-        const { data } = await loginHandler(`${context.from.id}`);
-        if (data == undefined) throw {
-            code: 404, message: "data is empty, please login /connect phoneNumber"
-        }
-        client = await connectAsUser(data.session);
-        await client.connect();
-        const groupFromDB = getgroupDB(data);
-        if (groupFromDB.length != 0 && context.match != "update") {
-            // check in db
-            await client.disconnect();
-            return await context.reply(textHelp.textGetGroup + groupFromDB.toString().replaceAll(",", ""), {
-                parse_mode: "Markdown",
-            });
-        }
-
-        // create newDialogs in session.js
-        const dialogs = await client.getDialogs();
-        const groups: any[] = [];
-        const dialogsData = dialogs.map((dialog) => {
-            if (!dialog.isChannel && dialog.isGroup == true) {
-                const data = {
-                    id: `${dialog.id}`,
-                    folderId: Math.abs(parseInt(`${dialog.id}`)),
-                    title: dialog.title,
-                    isGroup: dialog.isGroup,
-                    isChannel: dialog.isChannel,
-                };
-                groups.push(data);
-
-                return `[${dialog.title}](https://t.me/c/${Math.abs(parseInt(`${dialog.entity?.id}`))}/999999999) => ${dialog.id}\n`;
-            }
-        });
-
-        // save to storage
-        // await SaveStorage.updateDialogs(context.from.id, "session", groups);
-        const result = await updateUserHandler({
-            ...data, id: data.id.toString()
-        }, groups)
-        await context.reply(textHelp.textGetGroup + dialogsData.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
-    } catch (error: any) {
-        if (error.code) {
-            context.reply(error.message);
-        }
-        console.log(error);
+    if (context.from == undefined) {
+        throw {
+            code: 404,
+            message: "Sorry getGroup is not completed!, empty id",
+        };
     }
+    const { data } = await loginHandler(`${context.from.id}`);
+    if (data == undefined)
+        throw {
+            code: 404,
+            message: textHelp.unauthorizedDataIsEmpty,
+        };
     await client.disconnect();
-    await startObserve(context);
+    client = await connectAsUser(data.session);
+    await client.connect();
+    // create newDialogs in session.js
+    const dialogs = await client.getDialogs();
+    const dialogsData = dialogs.map((dialog) => {
+        if (!dialog.isChannel && dialog.isGroup == true) {
+            return `[${dialog.title}](https://t.me/c/${Math.abs(parseInt(`${dialog.entity?.id}`))}/999999999) => ${dialog.id}\n`;
+        }
+    });
+    await context.reply(textHelp.textGetGroup + dialogsData.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
+    await client.disconnect();
     return;
 }
 
 async function getChannel(context: Context) {
-    try {
-        await client.disconnect();
-        if (context.from == undefined) {
-            throw {
-                code: 404,
-                message: "Sorry getGroup is not completed!, empty id",
-            };
-        }
-        const { data } = await loginHandler(`${context.from.id}`);
-        if (data == undefined) throw {
-            code: 404, message: "data is empty, please login /connect phoneNumber"
-        }
-        client = await connectAsUser(data.session);
-        await client.connect();
-        const channelDB = getchanelDB(data);
-        if (channelDB.length != 0 && context.match != "update") {
-            // check in db
-            await client.disconnect();
-            console.log("if channelDB");
-            return await context.reply(textHelp.textGetChannel + channelDB.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
-        }
-
-        // create newDialogs in session.js
-        const channels: any[] = [];
-        const dialogs = await client.getDialogs();
-        const dialogsData = dialogs.map((dialog) => {
-            if (dialog.isChannel) {
-                channels.push({
-                    id: `${dialog.id}`,
-                    folderId: Math.abs(parseInt(`${dialog.id}`)),
-                    title: dialog.title,
-                    isGroup: dialog.isGroup,
-                    isChannel: dialog.isChannel,
-                });
-                return `[${dialog.title}](https://t.me/c/${Math.abs(parseInt(`${dialog.entity?.id}`))}/999999999) => ${dialog.id}\n`;
-            }
-        });
-
-        // save to storage
-        const result = await updateUserHandler({
-            ...data, id: data.id.toString()
-        }, channels)
-        await context.reply(textHelp.textGetChannel + dialogsData.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
-    } catch (error: any) {
-        if (error.code) {
-            context.reply(error.message);
-        }
-        console.error(error);
+    if (context.from == undefined) {
+        throw {
+            code: 404,
+            message: "Sorry getGroup is not completed!, empty id",
+        };
     }
+    const { data } = await loginHandler(`${context.from.id}`);
+    if (data == undefined)
+        throw {
+            code: 404,
+            message: textHelp.unauthorizedDataIsEmpty,
+        };
     await client.disconnect();
-    await startObserve(context);
+    client = await connectAsUser(data.session);
+    await client.connect();
+
+    // create newDialogs in session.js
+    const dialogs = await client.getDialogs();
+    const dialogsData = dialogs.map((dialog) => {
+        if (dialog.isChannel) {
+            return `[${dialog.title}](https://t.me/c/${Math.abs(parseInt(`${dialog.entity?.id}`))}/999999999) => ${dialog.id}\n`;
+        }
+    });
+    await context.reply(textHelp.textGetChannel + dialogsData.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
+    await client.disconnect();
     return;
 }
 
 async function getUser(context: Context) {
-    try {
-        await client.disconnect();
-        if (context.from == undefined) {
-            throw {
-                code: 404,
-                message: "Sorry getGroup is not completed!, empty id",
-            };
-        }
-        const { data } = await loginHandler(`${context.from.id}`);
-        if (data == undefined) throw {
-            code: 404, message: "data is empty, please login /connect phoneNumber"
-        }
-        client = await connectAsUser(data.session);
-        await client.connect();
-        const userDB = getUserDB(data);
-        if (userDB.length != 0 && context.match != "update") {
-            // check in db
-            return await context.reply(textHelp.textGetUser + userDB.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
-        }
-
-        // create newDialogs in session.js
-        const users: any[] = [];
-        const dialogs = await client.getDialogs();
-        const dialogsData = dialogs.map((dialog) => {
-            if (dialog.isUser) {
-                console.log(dialog);
-                
-                users.push({
-                    id: `${dialog.id}`,
-                    folderId: Math.abs(parseInt(`${dialog.id}`)),
-                    title: dialog.title,
-                    isGroup: dialog.isGroup,
-                    isChannel: dialog.isChannel,
-                });
-                return `[${dialog.title}](https://t.me/c/${Math.abs(parseInt(`${dialog.entity?.id}`))}/999999999) => ${dialog.id}\n`;
-            }
-        });
-
-        // save to storage
-        const result = await updateUserHandler({
-            ...data, id: data.id.toString()
-        }, users)
-        await context.reply(textHelp.textGetUser + dialogsData.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
-    } catch (error: any) {
-        if (error.code) {
-            context.reply(error.message);
-        }
-        console.error(error);
+    if (context.from == undefined) {
+        throw {
+            code: 404,
+            message: "Sorry getGroup is not completed!, empty id",
+        };
     }
+    const { data } = await loginHandler(`${context.from.id}`);
+    if (data == undefined)
+        throw {
+            code: 404,
+            message: textHelp.unauthorizedDataIsEmpty,
+        };
     await client.disconnect();
-    await startObserve(context);
+    client = await connectAsUser(data.session);
+    await client.connect();
+
+    // create newDialogs in session.js
+    const dialogs = await client.getDialogs();
+    const dialogsData = dialogs.map((dialog) => {
+        if (dialog.isUser) {
+            console.log(dialog);
+            return `[${dialog.title}](https://t.me/${dialog.entity?.["username"]}) => ${dialog.id}\n`;
+        }
+    });
+
+    await context.reply(textHelp.textGetUser + dialogsData.toString().replaceAll(",", ""), { parse_mode: "Markdown" });
+    await client.disconnect();
     return;
 }
 
-async function startObserve(context: Context) {
+// Menghentikan worker berdasarkan PID
+async function stopWorkerByPID(pid: number | undefined) {
+    if (pid == undefined) return false
+    if (pid == 0) pid = Math.random() // avoid fatal error due to pid 0
+    
+    try {
+        console.log('Worker: ', pid);
+        process.kill(pid, 'SIGTERM')
+        console.log('Worker kill: ', pid);
+        return true
+    } catch (error: any) {
+        console.error("==== StopWorkerByPID");
+        if (error.code == 'ESRCH') {
+            console.error('PID Not Found');
+            return false
+        }
+        console.log(error);
+    }
+}
+
+async function startTaskById(context: Context) {
+    if (context.from == undefined) return;
+    try {
+        client.session.close();
+        const { data } = await loginHandler(`${context.from.id}`);
+        if (data == undefined)
+            throw {
+                code: 404,
+                message: textHelp.unauthorizedDataIsEmpty,
+            };
+        const dataAllForwardById = await getAllForwardByIdHandler(data.id.toString());
+        await startObserve(context, {
+            session: data.session,
+            ...dataAllForwardById,
+        });
+    } catch (error: any) {
+        console.error(error);
+        throw {
+            code: 404,
+            message: `❌ Ooopss something wen't wrong when startTaskId:\n${error.message}`,
+        };
+    }
+}
+
+async function startAllTask(context: Context) {
+    try {
+        if (context.from == undefined) return;
+        const datas = await getAllUserHandler();
+        const dataForwards = await getAllForwardsHandler();
+        const datasForwardsAndSession: any[] = [];
+        datas.data.forEach((document) => {
+            dataForwards.data.forEach((forward) => {
+                if (document.id == forward.id) {
+                    datasForwardsAndSession.push({
+                        session: document.session,
+                        data: dataForwards.data,
+                    });
+                }
+            });
+        });
+
+        datasForwardsAndSession.forEach(async (data) => {
+            await startObserve(context, data);
+        });
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function startObserve(context: Context, dataForward: object) {
     if (context.from == undefined) return;
 
     try {
-        client.session.close()
-        const { data } = await loginHandler(`${context.from.id}`);
-        if (data == undefined) throw {
-            code: 404, message: "data is empty, please login /connect phoneNumber"
-        } 
-        const serverProcess = fork('src/commands/worker.ts', [], {
+        client.session.close();
+        const dataPidTmp = {};
+        console.log(dataForward["name"]);
+
+        const serverProcess = fork("src/commands/worker.js", [], {
             env: {
                 ...process.env,
-                IDUser: data.id.toString(),
-                SESSION_STRING: data.session
-            }
-        })
+                SESSION_STRING: dataForward["session"],
+                dataForwards: JSON.stringify(dataForward),
+            },
+        });
 
-        serverProcess.on('message', (message) => {
+        // ====== Save & Update PID in DB
+        const getPidById = await getPidByIdHandler(context.from.id);
+        dataPidTmp[context.from.id] = {
+            pid: serverProcess.pid,
+        };
+        // STOP OLD WORKER
+        await stopWorkerByPID(getPidById.data.pid);
+        console.log(dataForward["name"]);
+
+        if (getPidById.code == 404) {
+            await addPidHandler(dataPidTmp);
+        } else {
+            await updatePidHandler(dataPidTmp);
+        }
+        // ====== End
+
+        serverProcess.on("message", (message) => {
             console.log(`Received message from server process ${serverProcess.pid}: `, message);
-            if (message.toString().includes('kill')) {
-                //   stopWorkerByPID(serverProcess.pid)
-                console.log('Stop Worker: ' + serverProcess.pid);
+            if (message.toString().includes("/kill")) {
+                stopWorkerByPID(serverProcess.pid);
+                if (context.from == undefined) return;
+                context.api.sendMessage(context.from?.id, "The task has stopped\n");
             }
         });
-        serverProcess.on('error', (error) => {
+        serverProcess.on("error", (error) => {
             console.error(`Error in server process ${serverProcess.pid}:`, error);
         });
-        serverProcess.on('exit', (code) => {
+        serverProcess.on("exit", (code) => {
             console.log(`Server process ${serverProcess.pid} exited with code ${code}`);
         });
 
-        context.api.sendMessage(context.from?.id, "Okey i'm ready...");
+        context.api.sendMessage(context.from?.id, textHelp.botIsReady);
         console.log("END function");
     } catch (error: any) {
         console.error("startObserve: ", error);
-        if(error.code != undefined) {
-            await context.reply(error.message)
+        if (error.code != undefined) {
+            await context.reply(error.message);
         }
     }
-    return
+    return;
 }
 
-export { login, logout, getChannel, getUser, getGroup, startObserve, signIn };
+// Anda juga dapat menambahkan penanganan SIGINT jika diperlukan
+// process.on("SIGINT", async () => {
+//     console.log("Menerima sinyal SIGINT. Melakukan tindakan sebelum berhenti...");
+
+//     process.exit(0); // Keluar dengan kode sukses (0)
+// });
+export { login, logout, getChannel, getUser, getGroup, startTaskById, startAllTask, signIn, twoFactorAuthentication };
