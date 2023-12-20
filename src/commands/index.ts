@@ -32,6 +32,6 @@ composer.hears(/^worker=.*/, async (ctx) => await deleteForward(ctx, undefined))
 composer.on("msg", msg);
 composer.on("callback_query:data", callback_query);
 composer.on("message:text", (ctx) => {
-    console.log(ctx.msg.text); 
+    console.log("message:text: " + ctx.msg.text); 
 })
 export default composer;

@@ -308,13 +308,14 @@ async function getUser(context: Context) {
 }
 
 // Menghentikan worker berdasarkan PID
-async function stopWorkerByPID(pid: number | undefined) {
+function stopWorkerByPID(pid: number | undefined): boolean {
     if (pid == undefined) return false
     if (pid == 0) pid = Math.random() // avoid fatal error due to pid 0
     
     try {
         console.log('Worker: ', pid);
-        process.kill(pid, 'SIGTERM')
+        const resultKill = process.kill(pid, 'SIGTERM')
+        if (!resultKill) throw Error("TypeError [ERR_INVALID_ARG_TYPE]: The 'pid' argument must be of type number. Received type number")
         console.log('Worker kill: ', pid);
         return true
     } catch (error: any) {
@@ -325,6 +326,7 @@ async function stopWorkerByPID(pid: number | undefined) {
         }
         console.log(error);
     }
+    return false
 }
 
 async function startTaskById(context: Context) {
@@ -415,6 +417,10 @@ async function startObserve(context: Context, dataForward: object) {
                 if (context.from == undefined) return;
                 context.api.sendMessage(context.from?.id, "The task has stopped\n");
             }
+            const match = message.toString().match(/toChat:(-?\d+);/);
+            if (context.from == undefined || match == null) return;
+
+            context.api.sendMessage(match[1], message.toString().replace(/toChat:-\d+;/, ''), {parse_mode: 'Markdown'});
         });
         serverProcess.on("error", (error) => {
             console.error(`Error in server process ${serverProcess.pid}:`, error);

@@ -11,8 +11,12 @@ const forwardTo = async (forwardWorker: { from: []; to: [] }[], ctx: Context) =>
             // if (ctx.chat?.id == from) continue
             for (const to of dataUser.to) {
                 console.log(to);
-
-                await ctx.forwardMessage(to, from);
+                try {
+                    await ctx.forwardMessage(to, from);
+                } catch (error) {
+                    console.error(error);
+                    await ctx.reply("it looks like the bot is not an admin in the channel with id " + to);
+                }
             }
         }
     }
@@ -44,13 +48,15 @@ const msg = async (ctx: Context): Promise<void> => {
                 console.log("masuk private: ", ctx.message.text);
                 if (ctx.message.text?.includes("mycode")) {
                     signIn(ctx);
+                    break;
                 }
+                forwardTo(data, ctx);
                 break;
             default:
                 break;
         }
     } catch (error) {
-        // console.error(error);
+        console.error(error);
     }
 };
 

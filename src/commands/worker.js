@@ -49,10 +49,10 @@ const clientChat = async () => {
                 }
                 if (error instanceof errors_1.RPCError && process.send != undefined) {
                     for (const toChat of dataForward.to) {
-                        process.send(`toChat:${toChat};From: ${getMev2["firstName"]} (notHere) \n-----\n${message.message}`);
+                        // await message.forwardTo(toChat);
+                        process.send(`toChat:${toChat};[➡ Forwarded from ${getMev2["firstName"]}](https://t.me/c/${Math.abs(parseInt(`${message.chatId}`))}/999999999): \n${message.message}`);
                     }
                 }
-                console.log(error);
                 return;
             }
         }, new events_1.NewMessage({}));
